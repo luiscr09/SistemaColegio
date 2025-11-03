@@ -1,7 +1,9 @@
 
 import type React from "react"
 import { useState } from "react"
-import { supabase } from './lib/supabase'
+import { supabase } from "../lib/supabase"
+
+
 
 export default function Login() {
   const [email, setEmail] = useState("")
@@ -22,9 +24,10 @@ export default function Login() {
 
   if (error) {
     alert('Error: ' + error.message)
+    console.log('llega?')
   } else {
     alert('¡Login exitoso! Bienvenido ' + data.user?.email)
-   
+   console.log('LOGIN' +data.user?.email)
   }
 }
 
