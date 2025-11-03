@@ -1,6 +1,7 @@
 import { Routes, Route, Link } from 'react-router-dom'
 import './App.css'
 import Login from './views/login'
+import Student from './views/student'
 
 
 
@@ -10,7 +11,7 @@ function App() {
       
 
       <Routes>
-        
+        <Route element={<Student/>} path='student'/>
         <Route element={<Login/>} path='login'/>
       </Routes>
     </>
