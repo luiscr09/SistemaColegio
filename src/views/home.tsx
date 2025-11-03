@@ -1,10 +1,11 @@
-import { Navbar } from "@/components/navbar"
-import { Hero } from "@/components/hero"
-import { News } from "@/components/news"
-import { Courses } from "@/components/courses"
-import { About } from "@/components/about"
-import { Contact } from "@/components/contact"
-import { Footer } from "@/components/footer"
+import About from "../components/about";
+import Contact from "../components/contact";
+import { Courses } from "../components/course";
+import Footer from "../components/footer";
+import { Hero } from "../components/hero";
+import { Navbar } from "../components/navbar";
+import { News } from "../components/news";
+
 
 export default function HomePage() {
   return (
@@ -15,7 +16,7 @@ export default function HomePage() {
       <Courses />
       <About />
       <Contact />
-      <Footer />
+      <Footer/>
     </div>
   )
 }
