@@ -1,4 +1,4 @@
-import { Routes, Route, Link } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 import './App.css'
 import Login from './views/login'
 import Student from './views/student'
@@ -7,6 +7,7 @@ import Sidebar from './components/sidebar'
 import DashboardLayout from './views/DashboardLayout'
 
 
+import { Teacher } from './views/teacher'
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route element={<Login/>} path='login'/>
         <Route element={<HomePage/>} path='home'/>
         <Route element={<Sidebar/>} path='sidebar'/>
+        <Route element={<Teacher/>} path='teacher'/>
       </Routes>
     </>
   )
