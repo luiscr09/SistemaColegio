@@ -3,6 +3,10 @@ import './App.css'
 import Login from './views/login'
 import Student from './views/student'
 import HomePage from './views/home'
+import Sidebar from './components/sidebar'
+import DashboardLayout from './views/DashboardLayout'
+
+
 import { Teacher } from './views/teacher'
 
 function App() {
@@ -14,6 +18,7 @@ function App() {
         <Route element={<Student/>} path='student'/>
         <Route element={<Login/>} path='login'/>
         <Route element={<HomePage/>} path='home'/>
+        <Route element={<Sidebar/>} path='sidebar'/>
         <Route element={<Teacher/>} path='teacher'/>
       </Routes>
     </>
