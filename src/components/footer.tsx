@@ -57,10 +57,10 @@ export default function Footer() {
           <div>
             <h3 className="font-bold text-lg mb-4">Contacto</h3>
             <ul className="space-y-2 text-gray-400">
-              <li>Av. Principal #123</li>
-              <li>Ciudad, País</li>
-              <li>+58 (212) 123-4567</li>
-              <li>info@liceofidelcoloma.edu</li>
+              <li>Jardines de santa clara, parmalar carretera norte, 6 cuadra al largo 1 1/2 arriba</li>
+              <li>Managua, Nicaragua</li>
+              <li>+505 8130-1141</li>
+              <li>liceofidelcoloma@gmail.com</li>
             </ul>
           </div>
         </div>

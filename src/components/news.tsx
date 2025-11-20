@@ -3,25 +3,25 @@ export function News() {
     {
       id: 1,
       title: "Inicio del año escolar 2025",
-      date: "15 de Enero, 2025",
+      date: "20 de Enero, 2025",
       summary:
         "Damos la bienvenida a todos nuestros estudiantes y familias al nuevo ciclo escolar. Las clases inician el 20 de enero.",
-      image: "/inicio-clases-colegio-estudiantes.jpg",
+      image: "public/images/images.jpg",
     },
     {
       id: 2,
       title: "Reunión de padres y representantes",
-      date: "10 de Enero, 2025",
+      date: "10 de febrero, 2025",
       summary:
         "Invitamos a todos los padres a la reunión informativa sobre el calendario académico y actividades del año.",
-      image: "/reunion-padres-colegio.jpg",
+      image: "public/images/padresfam.jpg",
     },
     {
       id: 3,
       title: "Acto cívico por el Día de la Bandera",
-      date: "5 de Enero, 2025",
+      date: "14 de Julio, 2025",
       summary: "Celebramos con orgullo nuestros símbolos patrios con un emotivo acto cívico en el patio central.",
-      image: "/acto-civico-bandera-colegio.jpg",
+      image: "public/images/actociv.jpg",
     },
   ]
 
