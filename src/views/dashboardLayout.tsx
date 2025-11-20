@@ -5,7 +5,10 @@ import Sidebar from "../components/sidebar";
 const DashboardLayout: React.FC = () => {
   return (
     <div className="flex min-h-screen bg-gray-100">
+      {/* Sidebar fijo */}
       <Sidebar />
+
+      {/* Contenedor dinámico */}
       <main className="flex-1 p-6 overflow-auto">
         <Outlet />
       </main>
