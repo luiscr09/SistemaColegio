@@ -1,24 +1,19 @@
-// src/App.tsx
+
 
 import { Teacher } from './views/teacher';
 import { Routes, Route } from "react-router-dom";
 import "./App.css";
 
-// Vistas que ya tienes
+
 import Login from "./views/login";
 import HomePage from "./views/home";
 import Student from "./views/student";
 
-// Componentes del Dashboard (Asegúrate de que los nombres coincidan con tus archivos)
-// Usaremos el nombre corregido: DashboardLayout
+
 import DashboardLayout from "./views/dashboardLayout"; 
-import DashboardHome from "./views/dashboardhome"; // Necesitas crear este archivo
-import Profile from "./views/profile"; // Necesitas crear este archivo para /dashboard/profile
+import DashboardHome from "./views/dashboardhome"; 
+import Profile from "./views/profile"; 
 
-
-// src/App.tsx (Solo la parte de las rutas)
-
-// ... Tus importaciones de vistas ...
 
 function App() {
   return (

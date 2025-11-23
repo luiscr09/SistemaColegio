@@ -1,32 +1,32 @@
-// src/views/Profile.tsx
+
 
 import React, { useState, useEffect } from 'react';
 
-// Define una interfaz para la estructura de datos del usuario
+
 interface UserProfile {
   name: string;
   email: string;
 }
 
 const Profile: React.FC = () => {
-  // Estado para guardar los datos del usuario
+
   const [profileData, setProfileData] = useState<UserProfile>({ name: '', email: '' });
   const [loading, setLoading] = useState(true);
 
-  // 1. Lógica para cargar los datos del usuario al montar el componente
+
   useEffect(() => {
-    // Simular carga de datos (reemplazar con tu llamada a la API)
+   
     setTimeout(() => {
       setProfileData({ name: 'Juan Pérez', email: 'juan.perez@colegio.edu' });
       setLoading(false);
     }, 1000);
   }, []);
 
-  // 2. Manejador para actualizar el perfil
+
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Guardando nuevos datos:', profileData);
-    // Aquí iría la llamada a la API para actualizar los datos
+    
     alert('¡Perfil actualizado!');
   };
 
@@ -60,7 +60,7 @@ const Profile: React.FC = () => {
             type="email"
             id="email"
             value={profileData.email}
-            readOnly // El email a menudo no se permite cambiar fácilmente
+            readOnly 
             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-gray-50"
           />
         </div>
