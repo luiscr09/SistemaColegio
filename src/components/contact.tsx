@@ -106,7 +106,8 @@ export default function Contact() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-900 mb-1">Dirección</h4>
-                    <p className="text-gray-600">Av. Principal #123, Ciudad, País</p>
+                    <p className="text-gray-600">Jardines de santa clara, parmalar carretera norte, 6 cuadra al largo 1 1/2 arriba </p>
+
                   </div>
                 </div>
 
@@ -124,7 +125,7 @@ export default function Contact() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-900 mb-1">Teléfono</h4>
-                    <p className="text-gray-600">+58 (212) 123-4567</p>
+                    <p className="text-gray-600">+505 8130-1141</p>
                   </div>
                 </div>
 
@@ -142,7 +143,7 @@ export default function Contact() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-900 mb-1">Correo electrónico</h4>
-                    <p className="text-gray-600">info@liceofidelcoloma.edu</p>
+                    <p className="text-gray-600">liceofidelcoloma@gmail.com</p>
                   </div>
                 </div>
 

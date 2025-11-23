@@ -1,10 +1,10 @@
-// src/App.tsx
+
 
 import  TeachersPage  from './views/teacher';
 import { Routes, Route } from "react-router-dom";
 import "./App.css";
 
-// Vistas que ya tienes
+
 import Login from "./views/login";
 import HomePage from "./views/home";
 import Student from "./views/student";
@@ -16,10 +16,10 @@ import DashboardHome from "./views/dashboardhome"; // Necesitas crear este archi
 import Profile from "./views/profile"; // Necesitas crear este archivo para /dashboard/profile
 import EnrollmentsPage from './views/enrollment';
 
+import DashboardLayout from "./views/dashboardLayout"; 
+import DashboardHome from "./views/dashboardhome"; 
+import Profile from "./views/profile"; 
 
-// src/App.tsx (Solo la parte de las rutas)
-
-// ... Tus importaciones de vistas ...
 
 function App() {
   return (

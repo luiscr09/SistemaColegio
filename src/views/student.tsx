@@ -108,14 +108,14 @@ export default function StudentRegistrationPage() {
     setIsLoading(true)
 
     try {
-      // Llamar a la función RPC de Supabase para insertar estudiante y tutores
+      
       const { error } = await supabase.rpc('create_student_with_parents', {
         p_cue_mined: student.cue_mined || null,
         p_birth_certificate_number: student.birth_certificate_number || null,
         p_first_name: student.first_name,
         p_last_name: student.last_name,
         p_birth_date: student.birth_date || null,
-        p_parents: guardians.map(({id, isExisting, ...rest}) => rest), // Excluimos props internas
+        p_parents: guardians.map(({id, isExisting, ...rest}) => rest), 
       })
 
       if (error) throw error

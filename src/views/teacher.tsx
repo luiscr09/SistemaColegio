@@ -86,6 +86,27 @@ export default function TeachersPage() {
     setEditingTeacher(null)
     setIsModalOpen(true)
   }
+  
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+
+    if (validateForm()) {
+      console.log("Datos del formulario:", formData)
+
+      
+      const teacherData = {
+        name: formData.nombreCompleto,
+        lastname: formData.apellidos,
+        birthday: formData.fechaNacimiento,
+        gender: formData.genero === "masculino", 
+        email: formData.correoElectronico,
+        phone: formData.telefonoPersonal,
+        address: formData.direccionCompleta,
+        state: true,
+      }
+
+      
+      const { data, error } = await supabase.from("teacher").insert([teacherData])
 
   const handleEditTeacher = (teacher: Teacher) => {
     setEditingTeacher(teacher)
@@ -156,6 +177,22 @@ export default function TeachersPage() {
       applyFilters(updatedTeachers, searchTerm, stateFilter)
     } catch (error) {
       console.error("Error toggling teacher state:", error)
+      console.log("✅ Profesor guardado:", data)
+      setIsSubmitted(true)
+
+      
+      setFormData({
+        nombreCompleto: "",
+        apellidos: "",
+        fechaNacimiento: "",
+        genero: "",
+        identificacion: "",
+        correoElectronico: "",
+        telefonoPersonal: "",
+        direccionCompleta: "",
+      })
+
+      setTimeout(() => setIsSubmitted(false), 2000)
     }
   }
 
