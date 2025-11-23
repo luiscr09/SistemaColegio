@@ -83,7 +83,7 @@ const menuData: MenuSection[] = [
     section: "Administración",
     items: [
       { title: "Horarios", icon: Calendar, href: "#" },
-      { title: "Pagos y Matrículas", icon: CreditCard, href: "#" },
+      { title: "Matrículas", icon: CreditCard, href: "/dashboard/enrollment" },
       { title: "Reportes Financieros", icon: FileText, href: "#" },
       { title: "Eventos Escolares", icon: CalendarDays, href: "#" },
       { title: "Certificados", icon: Award, href: "#" },

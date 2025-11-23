@@ -1,6 +1,6 @@
 // src/App.tsx
 
-import { Teacher } from './views/teacher';
+import  TeachersPage  from './views/teacher';
 import { Routes, Route } from "react-router-dom";
 import "./App.css";
 
@@ -14,6 +14,7 @@ import Student from "./views/student";
 import DashboardLayout from "./views/dashboardLayout"; 
 import DashboardHome from "./views/dashboardhome"; // Necesitas crear este archivo
 import Profile from "./views/profile"; // Necesitas crear este archivo para /dashboard/profile
+import EnrollmentsPage from './views/enrollment';
 
 
 // src/App.tsx (Solo la parte de las rutas)
@@ -47,8 +48,8 @@ function App() {
         <Route path="students" element={<Student />} /> 
         
         {/* 4. Gestión de Profesores: Se carga en la URL: /dashboard/teachers */}
-        <Route path="teachers" element={<Teacher />} /> 
-        
+        <Route path="teachers" element={<TeachersPage />} /> 
+        <Route path='enrollment' element={<EnrollmentsPage/>} />
       </Route>
       
     </Routes>

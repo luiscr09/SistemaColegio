@@ -1,208 +1,206 @@
-import type React from "react"
-import { useState } from "react"
-import Input from "../components/input"
-import { Select } from "../components/search"
+import { useState, useEffect } from "react"
+import TeachersTable from "../components/teachers/teachers-table"
+import TeacherFilters from "../components/teachers/teacher-filters"
+import TeacherModal from "../components/teachers/teacher-modal"
+import type { Teacher } from "../types/types"
 import { supabase } from "../lib/supabase"
 
-interface FormErrors {
-  [key: string]: string
+
+
+// Helper para convertir string yyyy-mm-dd a Date
+const inputValueToDate = (value: string) => {
+  return value ? new Date(value) : new Date()
 }
 
-export function Teacher() {
-  const [formData, setFormData] = useState({
-    nombreCompleto: "",
-    apellidos: "",
-    fechaNacimiento: "",
-    genero: "",
-    identificacion: "",
-    correoElectronico: "",
-    telefonoPersonal: "",
-    direccionCompleta: "",
-  })
+export default function TeachersPage() {
+  const [teachers, setTeachers] = useState<Teacher[]>([])
+  const [filteredTeachers, setFilteredTeachers] = useState<Teacher[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [editingTeacher, setEditingTeacher] = useState<Teacher | null>(null)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [stateFilter, setStateFilter] = useState<"todos" | "activos" | "inactivos">("todos")
 
-  const [errors, setErrors] = useState<FormErrors>({})
-  const [isSubmitted, setIsSubmitted] = useState(false)
-
-  const validateForm = (): boolean => {
-    const newErrors: FormErrors = {}
-
-    if (!formData.nombreCompleto.trim()) newErrors.nombreCompleto = "El nombre completo es requerido"
-    if (!formData.apellidos.trim()) newErrors.apellidos = "Los apellidos son requeridos"
-    if (!formData.fechaNacimiento) newErrors.fechaNacimiento = "La fecha de nacimiento es requerida"
-    if (!formData.genero) newErrors.genero = "El género es requerido"
-    if (!formData.identificacion.trim()) newErrors.identificacion = "La identificación es requerida"
-    if (!formData.correoElectronico.trim()) {
-      newErrors.correoElectronico = "El correo electrónico es requerido"
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.correoElectronico)) {
-      newErrors.correoElectronico = "El correo electrónico no es válido"
-    }
-    if (!formData.telefonoPersonal.trim()) newErrors.telefonoPersonal = "El teléfono personal es requerido"
-    if (!formData.direccionCompleta.trim()) newErrors.direccionCompleta = "La dirección completa es requerida"
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }))
-    if (errors[name]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: "",
-      }))
-    }
-  }
-
-  // 🔥 Aquí agregamos la funcionalidad para guardar en Supabase
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-
-    if (validateForm()) {
-      console.log("Datos del formulario:", formData)
-
-      // Mapeo al formato de la tabla en Supabase
-      const teacherData = {
-        name: formData.nombreCompleto,
-        lastname: formData.apellidos,
-        birthday: formData.fechaNacimiento,
-        gender: formData.genero === "masculino", // true = masculino, false = femenino
-        email: formData.correoElectronico,
-        phone: formData.telefonoPersonal,
-        address: formData.direccionCompleta,
-        state: true,
+  // Carga inicial
+  useEffect(() => {
+    const loadTeachers = async () => {
+      setIsLoading(true)
+      try {
+        const { data, error } = await supabase.from("teacher").select("*")
+        if (error) throw error
+        if (data) {
+          // Convertimos fechas y booleanos de los datos recibidos
+          const parsedTeachers: Teacher[] = data.map((t) => ({
+            ...t,
+            birthday: new Date(t.birthday),
+            createdAt: new Date(t.createdAt),
+            gender: Boolean(t.gender),
+            state: Boolean(t.state),
+          }))
+          setTeachers(parsedTeachers)
+          setFilteredTeachers(parsedTeachers)
+        }
+      } catch (error) {
+        console.error("Error loading teachers:", error)
+      } finally {
+        setIsLoading(false)
       }
 
-      // Inserción a Supabase
-      const { data, error } = await supabase.from("teacher").insert([teacherData])
+      
+    }
 
-      if (error) {
-        console.error("Error al guardar el profesor:", error)
-        alert("❌ Error al guardar el profesor: " + error.message)
-        return
+    loadTeachers()
+  }, [])
+
+  // Aplica filtros de búsqueda y estado
+  const applyFilters = (data: Teacher[], search: string, state: string) => {
+    let filtered = data
+
+    if (search) {
+      filtered = filtered.filter(
+        (teacher) =>
+          teacher.name.toLowerCase().includes(search.toLowerCase()) ||
+          teacher.lastname.toLowerCase().includes(search.toLowerCase()),
+      )
+    }
+
+    if (state !== "todos") {
+      const stateBool = state === "activos"
+      filtered = filtered.filter((teacher) => teacher.state === stateBool)
+    }
+
+    setFilteredTeachers(filtered)
+  }
+
+  const handleSearch = (search: string) => {
+    setSearchTerm(search)
+    applyFilters(teachers, search, stateFilter)
+  }
+
+  const handleStateFilter = (state: "todos" | "activos" | "inactivos") => {
+    setStateFilter(state)
+    applyFilters(teachers, searchTerm, state)
+  }
+
+  const handleAddTeacher = () => {
+    setEditingTeacher(null)
+    setIsModalOpen(true)
+  }
+
+  const handleEditTeacher = (teacher: Teacher) => {
+    setEditingTeacher(teacher)
+    setIsModalOpen(true)
+  }
+
+  const handleSaveTeacher = async (teacherData: Partial<Teacher>) => {
+    try {
+      if (editingTeacher) {
+        // Actualización
+        const updated: Teacher = {
+          ...editingTeacher,
+          ...teacherData,
+          // Aseguramos tipos correctos para state y gender
+          state: typeof teacherData.state === "boolean" ? teacherData.state : editingTeacher.state,
+          gender: typeof teacherData.gender === "boolean" ? teacherData.gender : editingTeacher.gender,
+          birthday:
+            teacherData.birthday instanceof Date
+              ? teacherData.birthday
+              : editingTeacher.birthday,
+          createdAt: editingTeacher.createdAt,
+        }
+        const updatedTeachers = teachers.map((t) =>
+          t.teacherId === updated.teacherId ? updated : t,
+        )
+        setTeachers(updatedTeachers)
+        applyFilters(updatedTeachers, searchTerm, stateFilter)
+      } else {
+        // Nuevo profesor
+        const newTeacher: Teacher = {
+          teacherId: crypto.randomUUID(), // Usa UUID real
+          name: teacherData.name || "",
+          lastname: teacherData.lastname || "",
+          birthday:
+            teacherData.birthday instanceof Date
+              ? teacherData.birthday
+              : inputValueToDate(
+                  typeof teacherData.birthday === "string" ? teacherData.birthday : "",
+                ),
+          gender:
+            typeof teacherData.gender === "boolean"
+              ? teacherData.gender
+              : true, // default masculino = true
+          phone: teacherData.phone || null,
+          email: teacherData.email || null,
+          address: teacherData.address || null,
+          state: typeof teacherData.state === "boolean" ? teacherData.state : true,
+          createdAt: new Date(),
+        }
+        const newTeachers = [...teachers, newTeacher]
+        setTeachers(newTeachers)
+        applyFilters(newTeachers, searchTerm, stateFilter)
       }
+      setIsModalOpen(false)
+    } catch (error) {
+      console.error("Error saving teacher:", error)
+    }
+  }
 
-      console.log("✅ Profesor guardado:", data)
-      setIsSubmitted(true)
-
-      // Reiniciar el formulario
-      setFormData({
-        nombreCompleto: "",
-        apellidos: "",
-        fechaNacimiento: "",
-        genero: "",
-        identificacion: "",
-        correoElectronico: "",
-        telefonoPersonal: "",
-        direccionCompleta: "",
-      })
-
-      setTimeout(() => setIsSubmitted(false), 2000)
+  const handleToggleState = async (teacher: Teacher) => {
+    try {
+      const newState = !teacher.state
+      const updated: Teacher = { ...teacher, state: newState }
+      const updatedTeachers = teachers.map((t) =>
+        t.teacherId === teacher.teacherId ? updated : t,
+      )
+      setTeachers(updatedTeachers)
+      applyFilters(updatedTeachers, searchTerm, stateFilter)
+    } catch (error) {
+      console.error("Error toggling teacher state:", error)
     }
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-sky-50 to-white p-4 md:p-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Encabezado */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Agregar Profesor</h1>
-          <p className="text-muted-foreground">Completa los siguientes campos</p>
+          <h1 className="text-4xl font-bold text-primary mb-2">Gestión de Profesores</h1>
+          <p className="text-muted-foreground">Administra el registro de profesores del colegio</p>
         </div>
 
-        {isSubmitted && (
-          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-            <p className="text-green-800 text-sm font-medium">✓ Profesor agregado exitosamente</p>
+        {/* Filtros */}
+        <TeacherFilters
+          searchTerm={searchTerm}
+          stateFilter={stateFilter}
+          onSearch={handleSearch}
+          onStateFilter={handleStateFilter}
+          onAddTeacher={handleAddTeacher}
+        />
+
+        {/* Tabla */}
+        {isLoading ? (
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-sky-600 mb-4"></div>
+              <p className="text-muted-foreground">Cargando profesores...</p>
+            </div>
           </div>
+        ) : (
+          <TeachersTable
+            teachers={filteredTeachers}
+            onEdit={handleEditTeacher}
+            onToggleState={handleToggleState}
+          />
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <Input
-            label="Nombre completo"
-            name="nombreCompleto"
-            placeholder="Juan"
-            value={formData.nombreCompleto}
-            onChange={handleChange}
-            error={errors.nombreCompleto}
+        {/* Modal */}
+        {isModalOpen && (
+          <TeacherModal
+            teacher={editingTeacher}
+            onClose={() => setIsModalOpen(false)}
+            onSave={handleSaveTeacher}
           />
-
-          <Input
-            label="Apellido(s)"
-            name="apellidos"
-            placeholder="García López"
-            value={formData.apellidos}
-            onChange={handleChange}
-            error={errors.apellidos}
-          />
-
-          <Input
-            label="Fecha de nacimiento"
-            name="fechaNacimiento"
-            type="date"
-            value={formData.fechaNacimiento}
-            onChange={handleChange}
-            error={errors.fechaNacimiento}
-          />
-
-          <Select
-            label="Género"
-            name="genero"
-            value={formData.genero}
-            onChange={handleChange}
-            error={errors.genero}
-            options={[
-              { value: "masculino", label: "Masculino" },
-              { value: "femenino", label: "Femenino" },
-            ]}
-          />
-
-          <Input
-            label="Número de cédula / DUI / Identificación nacional"
-            name="identificacion"
-            placeholder="1234567-8"
-            value={formData.identificacion}
-            onChange={handleChange}
-            error={errors.identificacion}
-          />
-
-          <Input
-            label="Correo electrónico"
-            name="correoElectronico"
-            type="email"
-            placeholder="juan@example.com"
-            value={formData.correoElectronico}
-            onChange={handleChange}
-            error={errors.correoElectronico}
-          />
-
-          <Input
-            label="Teléfono personal"
-            name="telefonoPersonal"
-            type="tel"
-            placeholder="+503 1234-5678"
-            value={formData.telefonoPersonal}
-            onChange={handleChange}
-            error={errors.telefonoPersonal}
-          />
-
-          <Input
-            label="Dirección completa"
-            name="direccionCompleta"
-            placeholder="Calle Principal #123, Apartamento 4B"
-            value={formData.direccionCompleta}
-            onChange={handleChange}
-            error={errors.direccionCompleta}
-          />
-
-          <button
-            type="submit"
-            className="w-full mt-8 px-4 py-3 bg-primary text-primary-foreground font-medium rounded-lg hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-          >
-            Agregar Profesor
-          </button>
-        </form>
+        )}
       </div>
     </div>
   )
