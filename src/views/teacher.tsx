@@ -57,26 +57,26 @@ export function Teacher() {
     }
   }
 
-  // 🔥 Aquí agregamos la funcionalidad para guardar en Supabase
+  
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     if (validateForm()) {
       console.log("Datos del formulario:", formData)
 
-      // Mapeo al formato de la tabla en Supabase
+      
       const teacherData = {
         name: formData.nombreCompleto,
         lastname: formData.apellidos,
         birthday: formData.fechaNacimiento,
-        gender: formData.genero === "masculino", // true = masculino, false = femenino
+        gender: formData.genero === "masculino", 
         email: formData.correoElectronico,
         phone: formData.telefonoPersonal,
         address: formData.direccionCompleta,
         state: true,
       }
 
-      // Inserción a Supabase
+      
       const { data, error } = await supabase.from("teacher").insert([teacherData])
 
       if (error) {
@@ -88,7 +88,7 @@ export function Teacher() {
       console.log("✅ Profesor guardado:", data)
       setIsSubmitted(true)
 
-      // Reiniciar el formulario
+      
       setFormData({
         nombreCompleto: "",
         apellidos: "",
