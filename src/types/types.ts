@@ -11,7 +11,6 @@ export interface Teacher {
   createdAt: Date // fecha ISO string
 }
 
-
 export interface Student {
   id: string
   first_name: string
@@ -53,4 +52,35 @@ export interface Enrollment {
 
 export interface EnrollmentFormData extends Enrollment {
   grade_id: string
+}
+
+export type PaymentType = "matricula" | "mensualidad"
+
+export interface Payment {
+  id: string
+  enrollment_id: string
+  amount: number
+  payment_type: PaymentType
+  status: boolean
+  payment_date?: Date
+  notes?: string
+  created_at: string;
+  month_name: string;
+}
+
+export interface PaymentSummary {
+  total_amount: number
+  paid_amount: number
+  pending_amount: number
+  overdue_amount: number
+  paid_count: number
+  pending_count: number
+  overdue_count: number
+}
+
+export interface PaymentPlan {
+  enrollment_id: string
+  enrollment_fee: Payment
+  monthly_fees: Payment[]
+  summary: PaymentSummary
 }
