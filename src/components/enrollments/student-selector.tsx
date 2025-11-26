@@ -2,39 +2,53 @@
 
 import { useState, useEffect } from "react"
 import type { Student } from "../../types/types"
+import { supabase } from "../../lib/supabase"
 
 interface StudentSelectorProps {
   onSelect: (student: Student) => void
 }
 
-// Mock data - Reemplazar con Supabase
-const mockStudents: Student[] = [
-  { id: "1", first_name: "Juan", last_name: "Pérez", cue_mined: "CUE001", birth_certificate_number: "BC001" },
-  { id: "2", first_name: "María", last_name: "García", cue_mined: "CUE002", birth_certificate_number: "BC002" },
-  { id: "3", first_name: "Carlos", last_name: "López", cue_mined: "CUE003", birth_certificate_number: "BC003" },
-]
-
 export default function StudentSelector({ onSelect }: StudentSelectorProps) {
   const [search, setSearch] = useState("")
-  const [students, setStudents] = useState<Student[]>(mockStudents)
-  const [filtered, setFiltered] = useState<Student[]>(mockStudents)
-  const [loading, setLoading] = useState(false)
+  const [students, setStudents] = useState<Student[]>([])
+  const [filtered, setFiltered] = useState<Student[]>([])
+
+  useEffect(() => {
+    const handleLoadStudents = async () => {
+      const { data, error } = await supabase.from("students").select("*")
+
+      if (error) {
+        console.log(error);
+        return;
+      }
+      setStudents(data || [])
+      setFiltered(data || [])
+    }
+
+    handleLoadStudents();
+  }, [])
 
   useEffect(() => {
     if (search.trim() === "") {
       setFiltered(students)
-      console.log("lol")
       return
     }
 
-    const searchLower = search.toLowerCase()
-    const results = students.filter(
-      (student) =>
-        student.first_name.toLowerCase().includes(searchLower) ||
-        student.last_name.toLowerCase().includes(searchLower) ||
-        student.cue_mined.toLowerCase().includes(searchLower) ||
-        student.birth_certificate_number.toLowerCase().includes(searchLower),
-    )
+    const searchWords = search.toLowerCase().split(" ").filter(Boolean)
+
+    const results = students.filter((student) => {
+      const studentValues = [
+        student.first_name ?? "",
+        student.last_name ?? "",
+        student.cue_mined ?? "",
+        student.birth_certificate_number ?? ""
+      ].map((v) => v.toLowerCase())
+
+      return searchWords.every((word) =>
+        studentValues.some((value) => value.includes(word))
+      )
+    })
+
     setFiltered(results)
   }, [search, students])
 
@@ -65,7 +79,7 @@ export default function StudentSelector({ onSelect }: StudentSelectorProps) {
                 {student.first_name} {student.last_name}
               </p>
               <p className="text-sm text-gray-600">
-                CUI: {student.cue_mined} | Cert: {student.birth_certificate_number}
+                CUI: {student.cue_mined ?? 'N/A'} | Cert: {student.birth_certificate_number ?? 'N/A'}
               </p>
             </button>
           ))

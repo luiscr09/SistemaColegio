@@ -1,22 +1,19 @@
-"use client"
-
 import { useState } from "react"
 import StudentSelector from "./student-selector"
-import SchoolYearSelector from "./school-year-selector"
 import GradeSelector from "./grade-selector"
 import SectionSelector from "./section-selector"
 import EnrollmentDetails from "./enrollment-details"
 import EnrollmentSummary from "./enrollment-summary"
-import type { Student, SchoolYear, Grade, Section, EnrollmentFormData } from "../../types/types"
+import type { Student, Grade, Section, EnrollmentFormData } from "../../types/types"
+import { supabase } from "../../lib/supabase"
 
 interface EnrollmentFormProps {
   onSuccess: () => void
 }
 
 export default function EnrollmentForm({ onSuccess }: EnrollmentFormProps) {
-  const [step, setStep] = useState<"student" | "year" | "grade" | "section" | "details" | "summary">("student")
+  const [step, setStep] = useState<"student" | "grade" | "section" | "details" | "summary">("student")
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
-  const [selectedYear, setSelectedYear] = useState<SchoolYear | null>(null)
   const [selectedGrade, setSelectedGrade] = useState<Grade | null>(null)
   const [selectedSection, setSelectedSection] = useState<Section | null>(null)
   const [formData, setFormData] = useState<Partial<EnrollmentFormData>>({
@@ -27,12 +24,6 @@ export default function EnrollmentForm({ onSuccess }: EnrollmentFormProps) {
 
   const handleStudentSelect = (student: Student) => {
     setSelectedStudent(student)
-    setError(null)
-    setStep("year")
-  }
-
-  const handleYearSelect = (year: SchoolYear) => {
-    setSelectedYear(year)
     setError(null)
     setStep("grade")
   }
@@ -57,7 +48,7 @@ export default function EnrollmentForm({ onSuccess }: EnrollmentFormProps) {
   }
 
   const handleSaveEnrollment = async () => {
-    if (!selectedStudent || !selectedYear || !selectedSection) {
+    if (!selectedStudent || !selectedSection) {
       setError("Por favor completa todos los pasos")
       return
     }
@@ -68,7 +59,6 @@ export default function EnrollmentForm({ onSuccess }: EnrollmentFormProps) {
     try {
       const enrollmentData = {
         student_id: selectedStudent.id,
-        school_year_id: selectedYear.id,
         section_id: selectedSection.id,
         enrollment_date: formData.enrollment_date,
         comments: formData.comments,
@@ -76,24 +66,18 @@ export default function EnrollmentForm({ onSuccess }: EnrollmentFormProps) {
         custom_monthly_fee: formData.custom_monthly_fee,
       }
 
-      // Simulación de envío a Supabase
-      console.log("Enrolling:", enrollmentData)
+      const { error } = await supabase.from("enrollments").insert([enrollmentData])
 
-      // TODO: Conectar con Supabase
-      // const { data, error } = await supabase
-      //   .from('enrollments')
-      //   .insert([enrollmentData])
-      //   .select()
-
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      if (error) {
+        console.error("Error saving enrollment:", error)
+        return
+      }
 
       setLoading(false)
       onSuccess()
 
-      // Reset form
       setStep("student")
       setSelectedStudent(null)
-      setSelectedYear(null)
       setSelectedGrade(null)
       setSelectedSection(null)
       setFormData({ enrollment_date: new Date().toISOString().split("T")[0] })
@@ -106,7 +90,6 @@ export default function EnrollmentForm({ onSuccess }: EnrollmentFormProps) {
   const handleReset = () => {
     setStep("student")
     setSelectedStudent(null)
-    setSelectedYear(null)
     setSelectedGrade(null)
     setSelectedSection(null)
     setFormData({ enrollment_date: new Date().toISOString().split("T")[0] })
@@ -115,32 +98,29 @@ export default function EnrollmentForm({ onSuccess }: EnrollmentFormProps) {
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-8">
-      {/* Progress Steps */}
       <div>
         <div className="flex items-center justify-between mb-4">
           {["Estudiante", "Año Escolar", "Grado", "Sección", "Detalles", "Resumen"].map((label, idx) => {
-            const steps: (typeof step)[] = ["student", "year", "grade", "section", "details", "summary"]
+            const steps: (typeof step)[] = ["student", "grade", "section", "details", "summary"]
             const isActive = steps.indexOf(step) >= idx
             const isComplete = steps.indexOf(step) > idx
 
             return (
               <div key={label} className="flex items-center flex-1">
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
-                    isActive
-                      ? "bg-blue-600 text-white"
-                      : isComplete
-                        ? "bg-green-600 text-white"
-                        : "bg-gray-200 text-gray-600"
-                  }`}
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${isActive
+                    ? "bg-blue-600 text-white"
+                    : isComplete
+                      ? "bg-green-600 text-white"
+                      : "bg-gray-200 text-gray-600"
+                    }`}
                 >
                   {isComplete ? "✓" : idx + 1}
                 </div>
                 {idx < 5 && (
                   <div
-                    className={`flex-1 h-1 mx-2 transition-colors ${
-                      isComplete ? "bg-green-600" : isActive ? "bg-blue-600" : "bg-gray-200"
-                    }`}
+                    className={`flex-1 h-1 mx-2 transition-colors ${isComplete ? "bg-green-600" : isActive ? "bg-blue-600" : "bg-gray-200"
+                      }`}
                   />
                 )}
               </div>
@@ -149,16 +129,13 @@ export default function EnrollmentForm({ onSuccess }: EnrollmentFormProps) {
         </div>
       </div>
 
-      {/* Error Message */}
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg">
           <p className="text-sm">{error}</p>
         </div>
       )}
 
-      {/* Step Content */}
       <div className="min-h-96">
-        {/* Sección de Estudiante */}
         {step === "student" && (
           <div className="space-y-4">
             <div>
@@ -169,49 +146,30 @@ export default function EnrollmentForm({ onSuccess }: EnrollmentFormProps) {
           </div>
         )}
 
-        {/* Sección de Año Escolar */}
-        {step === "year" && selectedStudent && (
+        {step === "grade" && (
           <div className="space-y-4">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">Paso 2: Seleccionar Año Escolar</h2>
+              <h2 className="text-lg font-semibold text-gray-900">Paso 2: Seleccionar Grado</h2>
               <p className="text-sm text-gray-600 mt-1">
-                Estudiante:{" "}
-                <span className="font-medium">
-                  {selectedStudent.first_name} {selectedStudent.last_name}
-                </span>
-              </p>
-            </div>
-            <SchoolYearSelector student={selectedStudent} onSelect={handleYearSelect} />
-          </div>
-        )}
-
-        {/* Sección de Grado */}
-        {step === "grade" && selectedYear && (
-          <div className="space-y-4">
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900">Paso 3: Seleccionar Grado</h2>
-              <p className="text-sm text-gray-600 mt-1">
-                Año escolar: <span className="font-medium">{selectedYear.name}</span>
+                Estudiante: <span className="font-medium">{selectedStudent?.first_name} {selectedStudent?.last_name}</span>
               </p>
             </div>
             <GradeSelector onSelect={handleGradeSelect} />
           </div>
         )}
 
-        {/* Sección de Sección */}
         {step === "section" && selectedGrade && (
           <div className="space-y-4">
             <div>
               <h2 className="text-lg font-semibold text-gray-900">Paso 4: Seleccionar Sección</h2>
               <p className="text-sm text-gray-600 mt-1">
-                Grado: <span className="font-medium">{selectedGrade.name}</span>
+                Grado: <span className="font-medium">{selectedGrade.grade_name}</span>
               </p>
             </div>
             <SectionSelector gradeId={selectedGrade.id} onSelect={handleSectionSelect} />
           </div>
         )}
 
-        {/* Sección de Detalles */}
         {step === "details" && (
           <div className="space-y-4">
             <div>
@@ -222,8 +180,7 @@ export default function EnrollmentForm({ onSuccess }: EnrollmentFormProps) {
           </div>
         )}
 
-        {/* Sección de Resumen */}
-        {step === "summary" && selectedStudent && selectedYear && selectedSection && (
+        {step === "summary" && selectedStudent && selectedSection && (
           <div className="space-y-4">
             <div>
               <h2 className="text-lg font-semibold text-gray-900">Paso 6: Resumen de Matrícula</h2>
@@ -231,7 +188,6 @@ export default function EnrollmentForm({ onSuccess }: EnrollmentFormProps) {
             </div>
             <EnrollmentSummary
               student={selectedStudent}
-              year={selectedYear}
               section={selectedSection}
               formData={formData}
               loading={loading}
@@ -241,7 +197,6 @@ export default function EnrollmentForm({ onSuccess }: EnrollmentFormProps) {
         )}
       </div>
 
-      {/* Navigation Buttons */}
       <div className="pt-6 border-t border-gray-200 flex gap-3 justify-between">
         <button
           onClick={handleReset}
@@ -256,11 +211,10 @@ export default function EnrollmentForm({ onSuccess }: EnrollmentFormProps) {
             }
           }}
           disabled={step !== "summary" || loading}
-          className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-            step === "summary"
-              ? "bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-400"
-              : "bg-gray-300 text-gray-500 cursor-not-allowed"
-          }`}
+          className={`px-6 py-2 rounded-lg font-medium transition-colors ${step === "summary"
+            ? "bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-400"
+            : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            }`}
         >
           {loading ? "Guardando..." : "Guardar Matrícula"}
         </button>

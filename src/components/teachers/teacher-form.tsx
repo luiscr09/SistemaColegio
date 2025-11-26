@@ -1,24 +1,23 @@
-"use client"
-
 import type React from "react"
 import { useState, useEffect } from "react"
 import type { Teacher } from "../../types/types"
 import { User } from "lucide-react"
+import Input from "../input"
+import { supabase } from "../../lib/supabase"
+
 
 interface TeacherFormProps {
   teacher: Teacher | null
-  onSubmit: (teacher: Partial<Teacher>) => void
   onCancel: () => void
 }
 
-// Función helper para convertir Date a yyyy-mm-dd
 const dateToInputValue = (date: Date | string | null) => {
   if (!date) return ""
   const d = typeof date === "string" ? new Date(date) : date
   return d.toISOString().slice(0, 10)
 }
 
-export default function TeacherForm({ teacher, onSubmit, onCancel }: TeacherFormProps) {
+export default function TeacherForm({ teacher, onCancel }: TeacherFormProps) {
   const [formData, setFormData] = useState<Teacher>({
     teacherId: "",
     name: "",
@@ -33,35 +32,28 @@ export default function TeacherForm({ teacher, onSubmit, onCancel }: TeacherForm
     ...teacher,
   })
 
-  // Si cambia teacher, actualizamos formData
   useEffect(() => {
     if (teacher) {
-      setFormData({
-        ...teacher,
-      })
+      setFormData({ ...teacher })
     }
   }, [teacher])
-
+          
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
 
-    if (!formData.name?.trim()) {
-      newErrors.name = "El nombre es requerido"
-    }
-    if (!formData.lastname?.trim()) {
-      newErrors.lastname = "El apellido es requerido"
-    }
-    if (!formData.birthday) {
-      newErrors.birthday = "La fecha de nacimiento es requerida"
-    }
+    if (!formData.name?.trim()) newErrors.name = "El nombre es requerido"
+    if (!formData.lastname?.trim()) newErrors.lastname = "El apellido es requerido"
+    if (!formData.birthday) newErrors.birthday = "La fecha de nacimiento es requerida"
+
     if (!formData.email || !formData.email.trim()) {
       newErrors.email = "El email es requerido"
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = "Email inválido"
     }
+
     if (!formData.phone || !formData.phone.trim()) {
       newErrors.phone = "El teléfono es requerido"
     }
@@ -79,7 +71,6 @@ export default function TeacherForm({ teacher, onSubmit, onCancel }: TeacherForm
     const { name, value } = e.target
 
     if (name === "birthday") {
-      // Convertir string a Date
       const dateValue = value ? new Date(value) : null
       setFormData((prev) => ({ ...prev, birthday: dateValue! }))
       if (errors.birthday) setErrors((prev) => ({ ...prev, birthday: "" }))
@@ -87,18 +78,13 @@ export default function TeacherForm({ teacher, onSubmit, onCancel }: TeacherForm
     }
 
     if (name === "gender" || name === "state") {
-      // Convertir string a boolean
       const boolValue = value === "true"
       setFormData((prev) => ({ ...prev, [name]: boolValue }))
-      if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }))
       return
     }
 
-    // Para email, phone, name, lastname, address
     setFormData((prev) => ({ ...prev, [name]: value }))
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }))
-    }
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -107,7 +93,6 @@ export default function TeacherForm({ teacher, onSubmit, onCancel }: TeacherForm
 
     setIsSubmitting(true)
     try {
-      // Enviamos solo los campos editables
       const submitData: Partial<Teacher> = {
         name: formData.name,
         lastname: formData.lastname,
@@ -118,9 +103,15 @@ export default function TeacherForm({ teacher, onSubmit, onCancel }: TeacherForm
         address: formData.address,
         state: formData.state,
       }
-      await onSubmit(submitData)
-    } catch (error) {
-      console.error("Error submitting form:", error)
+
+      const { data, error } = !teacher ? await supabase.from("teacher").insert([submitData]) : await supabase.from("teacher").update(submitData).eq("teacherId", teacher.teacherId).select()
+
+      if (error) {
+        console.error("Error saving teacher:", error)
+        return
+      }
+
+      console.log(data)
     } finally {
       setIsSubmitting(false)
     }
@@ -136,60 +127,47 @@ export default function TeacherForm({ teacher, onSubmit, onCancel }: TeacherForm
         <p className="text-sm text-muted-foreground">Completa los datos del profesor</p>
       </div>
 
-      {/* Nombre y Apellido */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-foreground mb-2">Nombre *</label>
-          <input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition ${
-              errors.name ? "border-red-500" : "border-sky-200"
-            }`}
-            placeholder="Nombre del profesor"
-          />
-          {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-foreground mb-2">Apellido *</label>
-          <input
-            type="text"
-            name="lastname"
-            value={formData.lastname}
-            onChange={handleChange}
-            className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition ${
-              errors.lastname ? "border-red-500" : "border-sky-200"
-            }`}
-            placeholder="Apellido del profesor"
-          />
-          {errors.lastname && <p className="text-red-500 text-sm mt-1">{errors.lastname}</p>}
-        </div>
+        <Input
+          label="Nombre"
+          name="name"
+          value={formData.name}
+          onChange={handleChange}
+          placeholder="Nombre del profesor"
+          required
+          error={errors.name}
+        />
+
+        <Input
+          label="Apellido"
+          name="lastname"
+          value={formData.lastname}
+          onChange={handleChange}
+          placeholder="Apellido del profesor"
+          required
+          error={errors.lastname}
+        />
       </div>
 
-      {/* Cumpleaños y Género */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-foreground mb-2">Cumpleaños *</label>
-          <input
-            type="date"
-            name="birthday"
-            value={dateToInputValue(formData.birthday)}
-            onChange={handleChange}
-            className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition ${
-              errors.birthday ? "border-red-500" : "border-sky-200"
-            }`}
-          />
-          {errors.birthday && <p className="text-red-500 text-sm mt-1">{errors.birthday}</p>}
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-foreground mb-2">Género *</label>
+
+        <Input
+          label="Cumpleaños"
+          type="date"
+          name="birthday"
+          value={dateToInputValue(formData.birthday)}
+          onChange={handleChange}
+          required
+          error={errors.birthday}
+        />
+
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-foreground">Género *</label>
           <select
             name="gender"
             value={formData.gender.toString()}
             onChange={handleChange}
-            className="w-full px-4 py-2 border border-sky-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition bg-white"
+            className="w-full px-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring bg-white"
           >
             <option value="true">Masculino</option>
             <option value="false">Femenino</option>
@@ -197,81 +175,67 @@ export default function TeacherForm({ teacher, onSubmit, onCancel }: TeacherForm
         </div>
       </div>
 
-      {/* Email y Teléfono */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-foreground mb-2">Email *</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email || ""}
-            onChange={handleChange}
-            className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition ${
-              errors.email ? "border-red-500" : "border-sky-200"
-            }`}
-            placeholder="profesor@liceo.com"
-          />
-          {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-foreground mb-2">Teléfono *</label>
-          <input
-            type="tel"
-            name="phone"
-            value={formData.phone || ""}
-            onChange={handleChange}
-            className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition ${
-              errors.phone ? "border-red-500" : "border-sky-200"
-            }`}
-            placeholder="+505 0000-0000"
-          />
-          {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
-        </div>
-      </div>
-
-      {/* Dirección */}
-      <div>
-        <label className="block text-sm font-medium text-foreground mb-2">Dirección *</label>
-        <input
-          type="text"
-          name="address"
-          value={formData.address || ""}
+        <Input
+          label="Email"
+          type="email"
+          name="email"
+          value={formData.email || ""}
           onChange={handleChange}
-          className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition ${
-            errors.address ? "border-red-500" : "border-sky-200"
-          }`}
-          placeholder="Dirección del profesor"
+          placeholder="profesor@liceo.com"
+          required
+          error={errors.email}
         />
-        {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
+
+        <Input
+          label="Teléfono"
+          type="tel"
+          name="phone"
+          value={formData.phone || ""}
+          onChange={handleChange}
+          placeholder="+505 0000-0000"
+          required
+          error={errors.phone}
+        />
       </div>
 
-      {/* Estado */}
-      <div>
-        <label className="block text-sm font-medium text-foreground mb-2">Estado *</label>
+      {/* DIRECCIÓN */}
+      <Input
+        label="Dirección"
+        name="address"
+        value={formData.address || ""}
+        onChange={handleChange}
+        placeholder="Dirección del profesor"
+        required
+        error={errors.address}
+      />
+
+      <div className="flex flex-col gap-1.5">
+        <label className="text-sm font-medium text-foreground">Estado</label>
         <select
           name="state"
           value={formData.state.toString()}
           onChange={handleChange}
-          className="w-full px-4 py-2 border border-sky-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition bg-white"
+          className="w-full px-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring bg-white"
         >
           <option value="true">Activo</option>
           <option value="false">Inactivo</option>
         </select>
       </div>
 
-      {/* Botones */}
       <div className="flex gap-3 pt-6 border-t border-sky-100">
         <button
           type="button"
           onClick={onCancel}
-          className="flex-1 px-4 py-2 border border-sky-200 text-foreground rounded-lg hover:bg-sky-50 active:bg-sky-100 transition"
+          className="flex-1 px-4 py-2 border border-sky-200 text-foreground rounded-lg hover:bg-sky-50"
         >
           Cancelar
         </button>
+
         <button
           type="submit"
           disabled={isSubmitting}
-          className="flex-1 px-4 py-2 bg-sky-600 hover:bg-sky-700 active:bg-sky-800 disabled:bg-sky-400 text-white rounded-lg transition font-medium"
+          className="flex-1 px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-lg"
         >
           {isSubmitting ? "Guardando..." : teacher ? "Actualizar" : "Crear"}
         </button>

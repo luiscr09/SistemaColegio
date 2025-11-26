@@ -7,10 +7,9 @@ import TeacherForm from "./teacher-form"
 interface TeacherModalProps {
   teacher: Teacher | null
   onClose: () => void
-  onSave: (teacher: Partial<Teacher>) => void
 }
 
-export default function TeacherModal({ teacher, onClose, onSave }: TeacherModalProps) {
+export default function TeacherModal({ teacher, onClose }: TeacherModalProps) {
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
       onClose()
@@ -33,7 +32,7 @@ export default function TeacherModal({ teacher, onClose, onSave }: TeacherModalP
         </div>
 
         <div className="p-6">
-          <TeacherForm teacher={teacher} onSubmit={onSave} onCancel={onClose} />
+          <TeacherForm teacher={teacher} onCancel={onClose} />
         </div>
       </div>
     </div>
