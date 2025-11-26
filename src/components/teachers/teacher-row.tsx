@@ -1,14 +1,15 @@
 
+import type { Dispatch, SetStateAction } from "react"
 import type { Teacher } from "../../types/types"
 import { Edit2, CheckCircle, XCircle } from "lucide-react"
 
 interface TeacherRowProps {
   teacher: Teacher
   onEdit: (teacher: Teacher) => void
-  onToggleState: (teacher: Teacher) => void
+  setIsOpenModal: Dispatch<SetStateAction<boolean>>
 }
 
-export default function TeacherRow({ teacher, onEdit, onToggleState }: TeacherRowProps) {
+export default function TeacherRow({ teacher, onEdit, setIsOpenModal }: TeacherRowProps) {
   const isActive = teacher.state === true
 
   return (
@@ -25,9 +26,8 @@ export default function TeacherRow({ teacher, onEdit, onToggleState }: TeacherRo
       <td className="hidden lg:table-cell px-4 md:px-6 py-4 text-sm text-muted-foreground">{teacher.address}</td>
       <td className="px-4 md:px-6 py-4 text-sm">
         <span
-          className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${
-            isActive ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
-          }`}
+          className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${isActive ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+            }`}
         >
           {isActive ? (
             <>
@@ -52,10 +52,9 @@ export default function TeacherRow({ teacher, onEdit, onToggleState }: TeacherRo
             <Edit2 className="h-4 w-4" />
           </button>
           <button
-            onClick={() => onToggleState(teacher)}
-            className={`p-2 rounded-lg transition ${
-              isActive ? "hover:bg-red-100 text-red-600" : "hover:bg-green-100 text-green-600"
-            }`}
+            onClick={() => setIsOpenModal(true)}
+            className={`p-2 rounded-lg transition ${isActive ? "hover:bg-red-100 text-red-600" : "hover:bg-green-100 text-green-600"
+              }`}
             title={isActive ? "Inactivar" : "Activar"}
           >
             {isActive ? <XCircle className="h-4 w-4" /> : <CheckCircle className="h-4 w-4" />}

@@ -16,9 +16,6 @@ import DashboardHome from "./views/dashboardhome"; // Necesitas crear este archi
 import Profile from "./views/profile"; // Necesitas crear este archivo para /dashboard/profile
 import EnrollmentsPage from './views/enrollment';
 
-import DashboardLayout from "./views/dashboardLayout"; 
-import DashboardHome from "./views/dashboardhome"; 
-import Profile from "./views/profile"; 
 
 
 function App() {

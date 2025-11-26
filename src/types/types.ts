@@ -30,7 +30,7 @@ export interface SchoolYear {
 
 export interface Grade {
   id: string
-  name: string
+  grade_name: string
   level: number
 }
 

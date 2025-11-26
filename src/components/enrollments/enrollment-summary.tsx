@@ -4,7 +4,6 @@ import type { Student, SchoolYear, Section, EnrollmentFormData } from "../../typ
 
 interface EnrollmentSummaryProps {
   student: Student
-  year: SchoolYear
   section: Section
   formData: Partial<EnrollmentFormData>
   loading: boolean
@@ -13,7 +12,6 @@ interface EnrollmentSummaryProps {
 
 export default function EnrollmentSummary({
   student,
-  year,
   section,
   formData,
   loading,
@@ -45,9 +43,6 @@ export default function EnrollmentSummary({
         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
           <h4 className="font-medium text-gray-900 mb-3">Asignación Académica</h4>
           <div className="space-y-2 text-sm">
-            <p>
-              <span className="text-gray-600">Año Escolar:</span> <strong>{year.name}</strong>
-            </p>
             <p>
               <span className="text-gray-600">Sección:</span> <strong>{section.name}</strong>
             </p>
@@ -89,9 +84,8 @@ export default function EnrollmentSummary({
       <button
         onClick={onSave}
         disabled={loading}
-        className={`mt-6 w-full px-6 py-3 rounded-lg font-medium transition-colors ${
-          loading ? "bg-gray-400 text-white cursor-not-allowed" : "bg-blue-600 text-white hover:bg-blue-700"
-        }`}
+        className={`mt-6 w-full px-6 py-3 rounded-lg font-medium transition-colors ${loading ? "bg-gray-400 text-white cursor-not-allowed" : "bg-blue-600 text-white hover:bg-blue-700"
+          }`}
       >
         {loading ? "Guardando Matrícula..." : "Confirmar y Guardar"}
       </button>

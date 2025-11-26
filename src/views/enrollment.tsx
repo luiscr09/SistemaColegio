@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import EnrollmentForm from "../components/enrollments/enrollment-form"
 
