@@ -1,47 +1,82 @@
+import { Routes, Route, Navigate, useLocation } from "react-router-dom"
+import { useEffect, useState } from "react"
+import "./App.css"
 
+// Supabase
 
-import  TeachersPage  from './views/teacher';
-import { Routes, Route } from "react-router-dom";
-import "./App.css";
-
-import Login from "./views/login";
-import HomePage from "./views/home";
-import Student from "./views/student";
-
-import DashboardLayout from "./views/dashboardLayout"; 
-import DashboardHome from "./views/dashboardhome"; // Necesitas crear este archivo
-import Profile from "./views/profile"; // Necesitas crear este archivo para /dashboard/profile
-import EnrollmentsPage from './views/enrollment';
-import PaymentsPage from './views/payment';
-import SchedulePage from './views/schedule';
-import GradingPage from './views/grading';
-import NewsPage from './views/news';
-
-
-
+// Vistas
+import Login from "./views/login"
+import HomePage from "./views/home"
+import Student from "./views/student"
+import TeachersPage from "./views/teacher"
+import DashboardLayout from "./views/dashboardLayout"
+import DashboardHome from "./views/dashboardhome"
+import Profile from "./views/profile"
+import EnrollmentsPage from "./views/enrollment"
+import PaymentsPage from "./views/payment"
+import SchedulePage from "./views/schedule"
+import GradingPage from "./views/grading"
+import NewsPage from "./views/news"
+import { supabase } from "./lib/supabase"
 
 function App() {
+  const [loading, setLoading] = useState(true)
+  const [session, setSession] = useState<any>(null)
+  const location = useLocation()
+
+  // Obtener sesión
+  useEffect(() => {
+    const getSession = async () => {
+      const { data } = await supabase.auth.getSession()
+      setSession(data.session)
+      setLoading(false)
+    }
+
+    getSession()
+
+    // Escuchar cambios en la sesión
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+    })
+
+    return () => listener.subscription.unsubscribe()
+  }, [])
+
+  if (loading) return <p>Cargando...</p>
+
+  // --- Reglas de seguridad ---
+  const isLogged = !!session
+
+  // Si NO está logueado → bloquear todo lo que empiece con /dashboard
+  if (!isLogged && location.pathname.startsWith("/dashboard")) {
+    return <Navigate to="/login" replace />
+  }
+
+  // Si SI está logueado → bloquear /login
+  if (isLogged && location.pathname === "/login") {
+    return <Navigate to="/dashboard" replace />
+  }
+
   return (
     <Routes>
+      {/* Rutas públicas */}
       <Route path="/login" element={<Login />} />
       <Route path="/" element={<HomePage />} />
-      
-      <Route path="dashboard" element={<DashboardLayout />}>
+
+      {/* Rutas protegidas */}
+      <Route path="/dashboard" element={<DashboardLayout />}>
         <Route index element={<DashboardHome />} />
         <Route path="profile" element={<Profile />} />
-        <Route path="students" element={<Student />} /> 
-        <Route path="teachers" element={<TeachersPage />} /> 
-        <Route path='enrollment' element={<EnrollmentsPage/>} />
-        <Route path='payments' element={<PaymentsPage/>} />
-        <Route path='schedule' element={<SchedulePage/>} />
-        <Route path='grading' element={<GradingPage/>} />
-        <Route path='news' element={<NewsPage/>} />
-        <Route path='news' element={<DashboardHome/>} />
-        
+        <Route path="students" element={<Student />} />
+        <Route path="teachers" element={<TeachersPage />} />
+        <Route path="enrollment" element={<EnrollmentsPage />} />
+        <Route path="payments" element={<PaymentsPage />} />
+        <Route path="schedule" element={<SchedulePage />} />
+        <Route path="grading" element={<GradingPage />} />
+        <Route path="news" element={<NewsPage />} />
       </Route>
-      
     </Routes>
-  );
+  )
 }
 
-export default App;
+export default App
