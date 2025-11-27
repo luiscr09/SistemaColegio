@@ -13,6 +13,10 @@ import DashboardHome from "./views/dashboardhome"; // Necesitas crear este archi
 import Profile from "./views/profile"; // Necesitas crear este archivo para /dashboard/profile
 import EnrollmentsPage from './views/enrollment';
 import PaymentsPage from './views/payment';
+import SchedulePage from './views/schedule';
+import GradingPage from './views/grading';
+import NewsPage from './views/news';
+
 
 
 
@@ -20,7 +24,7 @@ function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
-      <Route path="/home" element={<HomePage />} />
+      <Route path="/" element={<HomePage />} />
       
       <Route path="dashboard" element={<DashboardLayout />}>
         <Route index element={<DashboardHome />} />
@@ -29,6 +33,11 @@ function App() {
         <Route path="teachers" element={<TeachersPage />} /> 
         <Route path='enrollment' element={<EnrollmentsPage/>} />
         <Route path='payments' element={<PaymentsPage/>} />
+        <Route path='schedule' element={<SchedulePage/>} />
+        <Route path='grading' element={<GradingPage/>} />
+        <Route path='news' element={<NewsPage/>} />
+        <Route path='news' element={<DashboardHome/>} />
+        
       </Route>
       
     </Routes>
