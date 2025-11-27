@@ -1,4 +1,3 @@
-"use client"
 
 import type { Student, SchoolYear, Section, EnrollmentFormData } from "../../types/types"
 

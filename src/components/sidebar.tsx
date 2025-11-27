@@ -25,6 +25,7 @@ import {
   X,
 } from "lucide-react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
+import { supabase } from "../lib/supabase"
 
 interface MenuItem {
   title: string
@@ -69,7 +70,7 @@ const menuData: MenuSection[] = [
     section: "Control Académico",
     items: [
       { title: "Calificaciones", icon: Award, href: "/dashboard/grading" },
-    
+
     ],
   },
   {
@@ -78,18 +79,18 @@ const menuData: MenuSection[] = [
       { title: "Pagos", icon: CreditCard, href: "/dashboard/payments" },
       { title: "Horarios", icon: Calendar, href: "/dashboard/schedule" },
       { title: "Matrículas", icon: CreditCard, href: "/dashboard/enrollment" },
-      
-     
+
+
     ],
   },
   {
     section: "Comunicación",
     items: [
       { title: "Noticias", icon: Newspaper, href: "/dashboard/news" },
-     
+
     ],
   },
- 
+
 ]
 
 export default function Sidebar() {
@@ -98,10 +99,11 @@ export default function Sidebar() {
   const { pathname } = useLocation();
   const router = useNavigate();
 
-  const handleLogout = () => {
-    // En una app real, aquí se limpiaría la sesión/tokens.
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     router("/login")
   }
+
 
   // Función para determinar si el enlace está activo, incluso para sub-rutas (e.g., /dashboard/students/register)
   const isLinkActive = (href: string) => {
