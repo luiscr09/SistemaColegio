@@ -1,5 +1,3 @@
-"use client"
-
 import type { GradeDistribution, PartialGrade } from "../../types/grading"
 
 interface PartialGradeInputProps {
@@ -59,12 +57,12 @@ export function PartialGradeInput({ distributions, maxScore, partialGrades, onCh
             {inputValue && (
               <div
                 className={`px-3 py-2 rounded-lg font-medium text-sm ${
-                  Number.parseFloat(inputValue as string) === dist.maxPoints
+                  Number.parseFloat(inputValue.toString()) === dist.maxPoints
                     ? "bg-green-50 text-green-700"
                     : "bg-amber-50 text-amber-700"
                 }`}
               >
-                {((Number.parseFloat(inputValue as string) / dist.maxPoints) * 100).toFixed(0)}%
+                {((Number.parseFloat(inputValue.toString()) / dist.maxPoints) * 100).toFixed(0)}%
               </div>
             )}
           </div>
