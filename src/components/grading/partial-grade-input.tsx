@@ -27,7 +27,7 @@ export function PartialGradeInput({ distributions, maxScore, partialGrades, onCh
       updated = [...partialGrades, { distributionId, points: limitedValue }]
     }
 
-    onChange(updated)
+    onChange(updated);
   }
 
   return (
