@@ -68,35 +68,28 @@ const menuData: MenuSection[] = [
   {
     section: "Control Académico",
     items: [
-      { title: "Calificaciones", icon: Award, href: "#" },
-      { title: "Reportes Académicos", icon: BarChart3, href: "#" },
+      { title: "Calificaciones", icon: Award, href: "/dashboard/grading" },
+    
     ],
   },
   {
     section: "Administración",
     items: [
       { title: "Pagos", icon: CreditCard, href: "/dashboard/payments" },
-      { title: "Horarios", icon: Calendar, href: "#" },
+      { title: "Horarios", icon: Calendar, href: "/dashboard/schedule" },
       { title: "Matrículas", icon: CreditCard, href: "/dashboard/enrollment" },
-      { title: "Reportes Financieros", icon: FileText, href: "#" },
-      { title: "Eventos Escolares", icon: CalendarDays, href: "#" },
-      { title: "Certificados", icon: Award, href: "#" },
+      
+     
     ],
   },
   {
     section: "Comunicación",
     items: [
-      { title: "Noticias", icon: Newspaper, href: "#" },
-      { title: "Notificaciones", icon: Bell, href: "#" },
+      { title: "Noticias", icon: Newspaper, href: "/dashboard/news" },
+     
     ],
   },
-  {
-    section: "Usuarios y Sistema",
-    items: [
-      { title: "Roles y Permisos", icon: Shield, href: "#" },
-      { title: "Backup", icon: Database, href: "#" },
-    ],
-  },
+ 
 ]
 
 export default function Sidebar() {
