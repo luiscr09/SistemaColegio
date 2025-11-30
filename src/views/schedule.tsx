@@ -1,37 +1,9 @@
-"use client"
-
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { ScheduleTable } from "../components/schedule/schedule-table"
 import { ScheduleValidation } from "../components/schedule/schedule-validation"
 import type { ScheduleEntry, EducationalLevel } from "../types/schedule"
-
-const EDUCATIONAL_LEVELS: EducationalLevel[] = [
-  {
-    id: "preescolar",
-    name: "Preescolar",
-    grades: [{ id: "pre-a", number: 0, name: "Preescolar", classrooms: ["A", "B", "C"] }],
-  },
-  {
-    id: "primaria",
-    name: "Primaria",
-    grades: Array.from({ length: 6 }, (_, i) => ({
-      id: `prim-${i + 1}`,
-      number: i + 1,
-      name: `Primer grado`,
-      classrooms: i < 3 ? ["A", "B", "C", "D"] : ["A", "B", "C"],
-    })),
-  },
-  {
-    id: "secundaria",
-    name: "Secundaria",
-    grades: Array.from({ length: 5 }, (_, i) => ({
-      id: `sec-${i + 7}`,
-      number: i + 7,
-      name: `Séptimo grado`,
-      classrooms: ["A", "B", "C", "D"],
-    })),
-  },
-]
+import { supabase } from "../lib/supabase"
+import type { Grade, Section } from "../types/types"
 
 const INITIAL_SCHEDULE: ScheduleEntry[] = Array.from({ length: 35 }, (_, i) => ({
   id: `${i}`,
@@ -44,16 +16,33 @@ const INITIAL_SCHEDULE: ScheduleEntry[] = Array.from({ length: 35 }, (_, i) => (
 }))
 
 export default function SchedulePage() {
-  const [selectedLevel, setSelectedLevel] = useState<string>("")
+  const LEVELS = ["Preescolar", "Primaria", "Secundaria"]
+  const [selectedLevel, setSelectedLevel] = useState<string>(LEVELS[0])
   const [selectedGrade, setSelectedGrade] = useState<string>("")
   const [selectedClassroom, setSelectedClassroom] = useState<string>("")
+  const [grades, setGrades] = useState<Grade[]>([])
+  const [sections, setSections] = useState<Section[]>([])
   const [schedule, setSchedule] = useState<ScheduleEntry[]>(INITIAL_SCHEDULE)
   const [isSaving, setIsSaving] = useState(false)
   const [showValidation, setShowValidation] = useState(false)
 
-  const currentLevel = EDUCATIONAL_LEVELS.find((l) => l.id === selectedLevel)
-  const currentGrade = currentLevel?.grades.find((g) => g.id === selectedGrade)
-  const classrooms = currentGrade?.classrooms || []
+  useEffect(() => {
+    const handleLoadCourses = async () => {
+      const { data } = await supabase.from("grades").select('*')
+      setGrades(data || [])
+    }
+
+    handleLoadCourses();
+  }, [])
+
+  useEffect(() => {
+    const handleLoadSections = async () => {
+      const { data } = await supabase.from('sections').select('*').eq('grade_id', selectedGrade)
+      setSections(data || [])
+    }
+
+    handleLoadSections();
+  }, [selectedGrade])
 
   const handleLevelChange = (levelId: string) => {
     setSelectedLevel(levelId)
@@ -81,7 +70,6 @@ export default function SchedulePage() {
     setIsSaving(true)
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000))
-      alert(`Horario guardado para ${currentLevel?.name} - ${currentGrade?.name} - Aula ${selectedClassroom}`)
       setShowValidation(false)
     } finally {
       setIsSaving(false)
@@ -101,14 +89,14 @@ export default function SchedulePage() {
             <div>
               <label className="block text-sm font-semibold text-foreground mb-2">Nivel Educativo</label>
               <select
-                value={selectedLevel}
+                value={selectedLevel || ""}
                 onChange={(e) => handleLevelChange(e.target.value)}
                 className="w-full px-4 py-2 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 bg-background text-foreground"
               >
                 <option value="">-- Elige un nivel --</option>
-                {EDUCATIONAL_LEVELS.map((level) => (
-                  <option key={level.id} value={level.id}>
-                    {level.name}
+                {LEVELS.map((level) => (
+                  <option key={level} value={level}>
+                    {level}
                   </option>
                 ))}
               </select>
@@ -123,9 +111,9 @@ export default function SchedulePage() {
                   className="w-full px-4 py-2 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 bg-background text-foreground"
                 >
                   <option value="">-- Elige un grado --</option>
-                  {currentLevel?.grades.map((grade) => (
+                  {grades.filter((grade) => grade.level === selectedLevel).map((grade) => (
                     <option key={grade.id} value={grade.id}>
-                      {grade.name}
+                      {grade.grade_name}
                     </option>
                   ))}
                 </select>
@@ -141,9 +129,9 @@ export default function SchedulePage() {
                   className="w-full px-4 py-2 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 bg-background text-foreground"
                 >
                   <option value="">-- Elige un aula --</option>
-                  {classrooms.map((classroom) => (
-                    <option key={classroom} value={classroom}>
-                      Aula {classroom}
+                  {sections.map((section) => (
+                    <option key={section.id} value={section.id}>
+                      Aula {section.name}
                     </option>
                   ))}
                 </select>
@@ -155,13 +143,13 @@ export default function SchedulePage() {
             <>
               <div className="mb-6 p-4 bg-sky-50 rounded-lg border border-sky-200">
                 <p className="text-sm font-semibold text-foreground">
-                  Horario actual: {currentLevel?.name} - {currentGrade?.name} - Aula {selectedClassroom}
+                  {/* Horario actual: {currentLevel?.name} - {currentGrade?.name} - Aula {selectedClassroom} */}
                 </p>
               </div>
 
               <ScheduleTable
                 schedule={schedule}
-                gradeName={currentGrade?.name || ""}
+                gradeName={"asd"}
                 classroom={selectedClassroom}
                 onScheduleUpdate={handleScheduleUpdate}
               />

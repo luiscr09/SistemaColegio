@@ -11,12 +11,24 @@ export interface Teacher {
   createdAt: Date // fecha ISO string
 }
 
+export interface StudentPaymentProps extends Student {
+  custom_enrollment_fee?: number
+  custom_monthly_fee?: number
+}
+
 export interface Student {
   id: string
   first_name: string
   last_name: string
   cue_mined: string
   birth_certificate_number: string
+}
+
+export interface PaymentMethodProps {
+  id: string;
+  name: string;
+  description: string;
+  created_at: string;
 }
 
 export interface SchoolYear {
@@ -30,7 +42,7 @@ export interface SchoolYear {
 export interface Grade {
   id: string
   grade_name: string
-  level: number
+  level: string
 }
 
 export interface Section {
