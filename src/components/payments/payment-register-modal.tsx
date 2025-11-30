@@ -2,12 +2,15 @@
 import type React from "react"
 import { X } from "lucide-react"
 import PaymentForm from "./payment-form"
+import type { Payment, StudentPaymentProps } from "../../types/types"
 
 interface TeacherModalProps {
   onClose: () => void
+  payments: Payment[]
+  student: StudentPaymentProps | null
 }
 
-export default function PaymentRegisterModal({ onClose }: TeacherModalProps) {
+export default function PaymentRegisterModal({ onClose, payments, student }: TeacherModalProps) {
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
       onClose()
@@ -30,7 +33,7 @@ export default function PaymentRegisterModal({ onClose }: TeacherModalProps) {
         </div>
 
         <div className="p-6">
-          <PaymentForm onCancel={onClose} />
+          <PaymentForm onCancel={onClose} payments={payments} student={student} />
         </div>
       </div>
     </div>

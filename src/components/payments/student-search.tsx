@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { Search, X } from "lucide-react"
 import { supabase } from "../../lib/supabase"
-import type { Student } from "../../types/types"
+import type { Student, StudentPaymentProps } from "../../types/types"
 
 interface StudentSearchProps {
   onSelectStudent: (student: Student | null) => void
@@ -9,21 +9,21 @@ interface StudentSearchProps {
 }
 
 export function StudentSearch({ onSelectStudent, selectedStudent }: StudentSearchProps) {
-  const [students, setStudents] = useState<Student[]>([])
+  const [students, setStudents] = useState<StudentPaymentProps[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [isOpen, setIsOpen] = useState(false)
-  const [filteredStudents, setFilteredStudents] = useState<Student[]>([])
+  const [filteredStudents, setFilteredStudents] = useState<StudentPaymentProps[]>([])
 
   useEffect(() => {
     const handleLoadStudents = async () => {
-      const { data, error } = await supabase.from('students').select('*')
+      const { data, error } = await supabase.from('get_student_payment').select('*')
 
       if (error) {
         console.error(error)
         return
       }
 
-      setStudents(data as Student[])
+      setStudents(data as StudentPaymentProps[])
     }
 
     handleLoadStudents()
@@ -36,18 +36,15 @@ export function StudentSearch({ onSelectStudent, selectedStudent }: StudentSearc
       return
     }
 
-    // Divide lo que el usuario escribe en palabras
     const searchWords = searchTerm.toLowerCase().split(" ").filter(Boolean)
 
     const filtered = students.filter((student) => {
-      // Campos donde buscar, protegidos contra null
       const studentValues = [
         student.first_name ?? "",
         student.last_name ?? "",
         student.cue_mined ?? "",
       ].map(v => v.toLowerCase())
 
-      // Cada palabra debe aparecer en algún campo
       return searchWords.every((word) =>
         studentValues.some((value) => value.includes(word))
       )
@@ -91,7 +88,6 @@ export function StudentSearch({ onSelectStudent, selectedStudent }: StudentSearc
         </div>
       </div>
 
-      {/* Dropdown de resultados */}
       {isOpen && filteredStudents.length > 0 && (
         <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50 max-h-48 overflow-y-auto">
           {filteredStudents.map((student) => (

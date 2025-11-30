@@ -87,7 +87,7 @@ export default function PaymentsPage() {
             <option value="atrasado">Atrasados</option>
           </select>
 
-          <button onClick={() => setIsModalPaymentRegisterOpen(true)} className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors ml-auto">
+          <button disabled={!selectedStudent} onClick={() => setIsModalPaymentRegisterOpen(true)} className="flex disabled:opacity-50 disabled:cursor-default disabled:hover:bg-blue-600 items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors ml-auto">
             <Plus className="w-5 h-5" />
             Registrar Pago
           </button>
@@ -118,6 +118,8 @@ export default function PaymentsPage() {
 
       {isModalPaymentRegisterOpen &&
         <PaymentRegisterModal
+          student={selectedStudent}
+          payments={payments}
           onClose={() => setIsModalPaymentRegisterOpen(false)}
         />
       }
