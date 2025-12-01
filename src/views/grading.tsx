@@ -17,7 +17,7 @@ export default function GradingBySectionPage() {
   const [step, setStep] = useState<"level" | "grade" | "classroom" | "subject" | "students" | "config" | "grades">(
     "level",
   )
-  const [distributions, setDistributions] = useState([])
+  const [distributions, setDistributions] = useState<any[]>([])
   const [maxScore, setMaxScore] = useState(100)
 
   const educationalLevels = [
@@ -157,8 +157,6 @@ export default function GradingBySectionPage() {
               levelId={selectedLevel}
               gradeId={selectedGrade}
               classroom={selectedClassroom}
-              subjectId={selectedSubject.id}
-              subjectName={selectedSubject.name}
               onBack={() => setStep("config")}
             />
           )}
