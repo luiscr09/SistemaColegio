@@ -1,5 +1,3 @@
-"use client"
-
 import { ScheduleTable } from "../../components/schedule/schedule-table"
 import type { ScheduleEntry } from "../../types/schedule"
 

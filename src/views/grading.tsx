@@ -1,6 +1,5 @@
-"use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import LevelSelector from "../components/grading/section/level-selector"
 import GradeSelector from "../components/grading/section/grade-selector"
 import ClassroomSelector from "../components/grading/section/classroom-selector"
@@ -8,12 +7,17 @@ import StudentsList from "../components/grading/section/students-list"
 import DistributionConfig from "../components/grading/section/distribution-config"
 import GradesTable from "../components/grading/section/grades-table"
 import SubjectSelector from "../components/grading/section/subject-selector"
+import type { Grade, Section, Student } from "../types/types"
+import { supabase } from "../lib/supabase"
 
 export default function GradingBySectionPage() {
   const [selectedLevel, setSelectedLevel] = useState("")
   const [selectedGrade, setSelectedGrade] = useState("")
-  const [selectedClassroom, setSelectedClassroom] = useState("")
+  const [selectedClassroom, setSelectedClassroom] = useState<Section | null>(null)
   const [selectedSubject, setSelectedSubject] = useState<{ id: string; name: string; code: string } | null>(null)
+  const [grades, setGrades] = useState<Grade[]>([])
+  const [sections, setSections] = useState<Section[]>([])
+  const [students, setStudents] = useState<Student[]>([])
   const [step, setStep] = useState<"level" | "grade" | "classroom" | "subject" | "students" | "config" | "grades">(
     "level",
   )
@@ -26,33 +30,46 @@ export default function GradingBySectionPage() {
     { id: "secundaria", name: "Secundaria" },
   ]
 
-  const gradesMap = {
-    preescolar: [{ id: "pre-a", name: "Preescolar" }],
-    primaria: Array.from({ length: 6 }, (_, i) => ({ id: `prim-${i + 1}`, name: `${i + 1}° Grado` })),
-    secundaria: Array.from({ length: 5 }, (_, i) => ({ id: `sec-${i + 1}`, name: `${i + 1}° Año` })),
-  }
+  useEffect(() => {
+    const handleLoadGrades = async () => {
+      const { data } = await supabase.from('grades').select('*')
+      setGrades(data || [])
+    }
 
-  const classrooms = ["A", "B", "C", "D", "E"]
+    const handleLoadSections = async () => {
+      const { data } = await supabase.from('sections').select('*')
+      setSections(data || [])
+    }
+
+    handleLoadSections();
+    handleLoadGrades();
+  }, [])
 
   const handleLevelSelect = (levelId: string) => {
     setSelectedLevel(levelId)
     setSelectedGrade("")
-    setSelectedClassroom("")
+    setSelectedClassroom(null)
     setSelectedSubject(null)
     setStep("grade")
   }
 
   const handleGradeSelect = (gradeId: string) => {
     setSelectedGrade(gradeId)
-    setSelectedClassroom("")
+    setSelectedClassroom(null)
     setSelectedSubject(null)
     setStep("classroom")
   }
 
-  const handleClassroomSelect = (classroom: string) => {
+  const handleClassroomSelect = (classroom: Section) => {
     setSelectedClassroom(classroom)
     setSelectedSubject(null)
     setStep("subject")
+    handleLoadStudents(classroom.id)
+  }
+
+  const handleLoadStudents = async (section_id: string) => {
+    const { data } = await supabase.from('get_student_grading').select('*').eq('section_id', section_id)
+    setStudents(data || [])
   }
 
   const handleSubjectSelect = (subject: { id: string; name: string; code: string }) => {
@@ -67,7 +84,6 @@ export default function GradingBySectionPage() {
   }
 
   const levelName = educationalLevels.find((l) => l.id === selectedLevel)?.name || ""
-  const gradeName = gradesMap[selectedLevel as keyof typeof gradesMap]?.find((g) => g.id === selectedGrade)?.name || ""
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-50 to-white p-4 md:p-8">
@@ -79,18 +95,16 @@ export default function GradingBySectionPage() {
           </p>
         </div>
 
-        {/* Pasos */}
         <div className="mb-8 flex gap-2 overflow-x-auto pb-2">
           {["level", "grade", "classroom", "subject", "students", "config", "grades"].map((s, i) => (
             <div key={s} className="flex items-center">
               <div
-                className={`px-4 py-2 rounded-full font-semibold text-sm whitespace-nowrap transition-colors ${
-                  step === s
-                    ? "bg-sky-600 text-white"
-                    : ["level", "grade", "classroom", "subject", "students", "config", "grades"].indexOf(step) > i
-                      ? "bg-sky-200 text-sky-900"
-                      : "bg-gray-200 text-gray-600"
-                }`}
+                className={`px-4 py-2 rounded-full font-semibold text-sm whitespace-nowrap transition-colors ${step === s
+                  ? "bg-sky-600 text-white"
+                  : ["level", "grade", "classroom", "subject", "students", "config", "grades"].indexOf(step) > i
+                    ? "bg-sky-200 text-sky-900"
+                    : "bg-gray-200 text-gray-600"
+                  }`}
               >
                 {i + 1}. {s === "level" && "Nivel"}
                 {s === "grade" && "Grado"}
@@ -105,13 +119,12 @@ export default function GradingBySectionPage() {
           ))}
         </div>
 
-        {/* Contenido */}
         <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
           {step === "level" && <LevelSelector levels={educationalLevels} onSelect={handleLevelSelect} />}
 
           {step === "grade" && (
             <GradeSelector
-              grades={gradesMap[selectedLevel as keyof typeof gradesMap] || []}
+              grades={grades}
               onSelect={handleGradeSelect}
               onBack={() => setStep("level")}
               levelName={levelName}
@@ -120,10 +133,10 @@ export default function GradingBySectionPage() {
 
           {step === "classroom" && (
             <ClassroomSelector
-              classrooms={classrooms}
+              classrooms={sections.filter(s => s.grade_id === selectedGrade)}
               onSelect={handleClassroomSelect}
               onBack={() => setStep("grade")}
-              gradeName={gradeName}
+              gradeName={grades.find(g => g.id === selectedGrade)?.grade_name || ""}
             />
           )}
 
@@ -131,11 +144,12 @@ export default function GradingBySectionPage() {
 
           {step === "students" && (
             <StudentsList
+              students={students}
               onContinue={() => setStep("config")}
               onBack={() => setStep("subject")}
               levelId={selectedLevel}
               gradeId={selectedGrade}
-              classroom={selectedClassroom}
+              classroom={selectedClassroom?.name || ""}
             />
           )}
 
@@ -146,18 +160,21 @@ export default function GradingBySectionPage() {
               subjectId={selectedSubject?.id}
               levelId={selectedLevel}
               gradeId={selectedGrade}
-              classroom={selectedClassroom}
+              classroom={selectedClassroom?.name || ""}
             />
           )}
 
           {step === "grades" && selectedSubject && (
             <GradesTable
+              students={students}
               distributions={distributions}
               maxScore={maxScore}
               levelId={selectedLevel}
               gradeId={selectedGrade}
               classroom={selectedClassroom}
               onBack={() => setStep("config")}
+              subjectId={selectedSubject.id}
+              subjectName={selectedSubject.name}
             />
           )}
         </div>

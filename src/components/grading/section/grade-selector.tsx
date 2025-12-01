@@ -1,7 +1,7 @@
-"use client"
+import type { Grade } from "../../../types/types"
 
 interface GradeSelectorProps {
-  grades: Array<{ id: string; name: string }>
+  grades: Grade[]
   onSelect: (gradeId: string) => void
   onBack: () => void
   levelName: string
@@ -20,13 +20,13 @@ export default function GradeSelector({ grades, onSelect, onBack, levelName }: G
         </button>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {grades.map((grade) => (
+        {grades.filter(g => g.level.toString().toLocaleLowerCase() === levelName.toString().toLocaleLowerCase()).map((grade) => (
           <button
             key={grade.id}
             onClick={() => onSelect(grade.id)}
             className="p-6 bg-gradient-to-br from-sky-50 to-sky-100 border-2 border-sky-200 rounded-lg hover:border-sky-500 hover:shadow-lg transition-all cursor-pointer"
           >
-            <p className="font-semibold text-lg text-sky-900">{grade.name}</p>
+            <p className="font-semibold text-lg text-sky-900">{grade.grade_name}</p>
           </button>
         ))}
       </div>
