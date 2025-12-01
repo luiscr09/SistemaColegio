@@ -99,7 +99,7 @@ export default function DistributionConfig({
 
   const handleRemoveDistribution = (id: string) => {
     setDistributions(distributions.filter((d) => d.id !== id))
-    setIsCustom(true);
+    setIsCustom(true)
   }
 
   const totalPoints = distributions.reduce((sum, d) => sum + d.maxPoints, 0)
