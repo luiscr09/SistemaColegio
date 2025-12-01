@@ -37,3 +37,23 @@ export interface GradingRecord {
   createdAt: Date
   updatedAt: Date
 }
+
+export interface SubjectConfigurationBySection {
+  id: string
+  levelId: string
+  gradeId: string
+  classroom: string
+  subjectId: string
+  subjectName: string
+  maxScore: number
+  distributions: GradeDistribution[]
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface GradingRecordBySection extends GradingRecord {
+  levelId: string
+  gradeId: string
+  classroom: string
+  configId: string
+}
