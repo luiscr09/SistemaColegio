@@ -1,20 +1,44 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 interface DistributionConfigProps {
   onComplete: (distributions: any[], maxScore: number) => void
   onBack: () => void
+  subjectId?: string
+  levelId?: string
+  gradeId?: string
+  classroom?: string
+  existingConfig?: any
 }
 
-export default function DistributionConfig({ onComplete, onBack }: DistributionConfigProps) {
-  const [maxScore, setMaxScore] = useState(100)
+export default function DistributionConfig({
+  onComplete,
+  onBack,
+  subjectId,
+  levelId,
+  gradeId,
+  classroom,
+  existingConfig,
+}: DistributionConfigProps) {
+  const [maxScore, setMaxScore] = useState(existingConfig?.maxScore || 100)
   const [preset, setPreset] = useState("2")
-  const [distributions, setDistributions] = useState([
-    { id: "1", name: "Evaluación 1", maxPoints: 50 },
-    { id: "2", name: "Evaluación 2", maxPoints: 50 },
-  ])
-  const [isCustom, setIsCustom] = useState(false)
+  const [distributions, setDistributions] = useState(
+    existingConfig?.distributions || [
+      { id: "1", name: "Evaluación 1", maxPoints: 50 },
+      { id: "2", name: "Evaluación 2", maxPoints: 50 },
+    ],
+  )
+  const [isCustom, setIsCustom] = useState(!!existingConfig)
+  const [showWarning, setShowWarning] = useState(false)
+  const [hasGradingData, setHasGradingData] = useState(false)
+
+  useEffect(() => {
+    if (existingConfig) {
+      const savedGradings = localStorage.getItem(`gradings-${levelId}-${gradeId}-${classroom}-${subjectId}`)
+      setHasGradingData(!!savedGradings)
+    }
+  }, [existingConfig, levelId, gradeId, classroom, subjectId])
 
   const presets = {
     "2": [
@@ -35,12 +59,18 @@ export default function DistributionConfig({ onComplete, onBack }: DistributionC
   }
 
   const handlePresetChange = (p: string) => {
+    if (hasGradingData) {
+      setShowWarning(true)
+    }
     setPreset(p)
     setDistributions(presets[p as keyof typeof presets] || [])
     setIsCustom(false)
   }
 
   const handleMaxScoreChange = (value: number) => {
+    if (hasGradingData) {
+      setShowWarning(true)
+    }
     setMaxScore(Math.max(1, value))
     if (!isCustom) {
       setDistributions(presets[preset as keyof typeof presets] || [])
@@ -48,6 +78,9 @@ export default function DistributionConfig({ onComplete, onBack }: DistributionC
   }
 
   const handleUpdateDistribution = (id: string, field: "name" | "maxPoints", value: any) => {
+    if (hasGradingData) {
+      setShowWarning(true)
+    }
     setDistributions(
       distributions.map((d) =>
         d.id === id ? { ...d, [field]: field === "maxPoints" ? Math.max(0, value) : value } : d,
@@ -72,10 +105,33 @@ export default function DistributionConfig({ onComplete, onBack }: DistributionC
   const totalPoints = distributions.reduce((sum, d) => sum + d.maxPoints, 0)
   const isValid = totalPoints === maxScore && distributions.length > 0
 
+  const handleComplete = () => {
+    if (subjectId && levelId && gradeId && classroom) {
+      const config = {
+        subjectId,
+        levelId,
+        gradeId,
+        classroom,
+        maxScore,
+        distributions,
+        savedAt: new Date().toISOString(),
+      }
+      localStorage.setItem(`config-${levelId}-${gradeId}-${classroom}-${subjectId}`, JSON.stringify(config))
+    }
+    onComplete(distributions, maxScore)
+  }
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-semibold text-gray-900">Configurar Sistema de Evaluación</h2>
+        <div>
+          <h2 className="text-2xl font-semibold text-gray-900">Configurar Sistema de Evaluación</h2>
+          {hasGradingData && (
+            <p className="text-sm text-amber-600 mt-1">
+              ⚠️ Ya hay calificaciones registradas. Los cambios aquí afectarán los datos existentes.
+            </p>
+          )}
+        </div>
         <button
           onClick={onBack}
           className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
@@ -83,6 +139,15 @@ export default function DistributionConfig({ onComplete, onBack }: DistributionC
           Atrás
         </button>
       </div>
+
+      {showWarning && (
+        <div className="mb-6 p-4 bg-amber-50 border border-amber-300 rounded-lg">
+          <p className="text-sm text-amber-800">
+            <strong>Advertencia:</strong> Modificar la estructura de evaluaciones puede afectar las calificaciones ya
+            registradas. Asegúrate de que los cambios sean válidos.
+          </p>
+        </div>
+      )}
 
       <div className="space-y-6">
         {/* Puntuación Máxima */}
@@ -187,7 +252,7 @@ export default function DistributionConfig({ onComplete, onBack }: DistributionC
 
         {/* Botones */}
         <button
-          onClick={() => onComplete(distributions, maxScore)}
+          onClick={handleComplete}
           disabled={!isValid}
           className={`w-full px-6 py-3 font-semibold rounded-lg transition-all ${
             isValid
