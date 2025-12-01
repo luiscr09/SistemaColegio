@@ -12,7 +12,7 @@ export function calculatePaymentSummary(payments: Payment[]): PaymentSummary {
   }
 }
 
-export function getMonthName(month: number): string {
+export default function getMonthName(month: number): string {
   const months = [
     "Enero",
     "Febrero",

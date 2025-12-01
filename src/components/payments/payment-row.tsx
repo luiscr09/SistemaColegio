@@ -1,7 +1,7 @@
 import { CheckCircle2, AlertCircle, Edit2 } from "lucide-react"
 import { useState } from "react"
 import type { Payment } from "../../types/types"
-import { formatDate, getMonthName } from "../../lib/functions"
+import getMonthName from "../../lib/functions"
 
 interface PaymentRowProps {
   payment: Payment
