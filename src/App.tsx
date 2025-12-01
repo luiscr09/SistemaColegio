@@ -72,7 +72,7 @@ function App() {
         <Route path="teachers" element={<TeachersPage />} />
         <Route path="enrollment" element={<EnrollmentsPage />} />
         <Route path="payments" element={<PaymentsPage />} />
-        <Route path="schedule" element={<SchedulePage />} />
+        <Route path="schedule/:section_id?" element={<SchedulePage />} />
         <Route path="grading" element={<GradingPage />} />
         <Route path="news" element={<NewsPage />} />
         <Route path="section" element={<SeccionesPage />} />

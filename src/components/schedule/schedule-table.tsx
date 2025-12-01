@@ -1,5 +1,3 @@
-"use client"
-
 import { ScheduleCell } from "./schedule-cell"
 import type { ScheduleEntry } from "../../types/schedule"
 

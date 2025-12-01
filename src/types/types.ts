@@ -52,6 +52,14 @@ export interface Section {
   capacity: number
 }
 
+export interface SectionViewProps {
+  section_id: string
+  grade_id: string
+  section_name: string
+  grade_name: string
+  level: string
+}
+
 export interface Enrollment {
   student_id: string
   school_year_id: string

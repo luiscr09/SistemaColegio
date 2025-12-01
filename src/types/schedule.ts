@@ -25,13 +25,6 @@ export interface Subject {
   id: string
   name: string
 }
-
-export interface Teacher {
-  id: string
-  firstName: string
-  lastName: string
-}
-
 export interface EducationalLevel {
   id: string
   name: "Preescolar" | "Primaria" | "Secundaria"

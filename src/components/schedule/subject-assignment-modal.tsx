@@ -1,25 +1,7 @@
-"use client"
-
-import { useState } from "react"
-import type { ScheduleEntry, Subject, Teacher } from "../../types/schedule"
-
-const SUBJECTS: Subject[] = [
-  { id: "1", name: "Matemáticas" },
-  { id: "2", name: "Español" },
-  { id: "3", name: "Inglés" },
-  { id: "4", name: "Ciencias" },
-  { id: "5", name: "Historia" },
-  { id: "6", name: "Educación Física" },
-  { id: "7", name: "Artes" },
-]
-
-const TEACHERS: Teacher[] = [
-  { id: "1", firstName: "Juan", lastName: "García" },
-  { id: "2", firstName: "María", lastName: "López" },
-  { id: "3", firstName: "Carlos", lastName: "Rodríguez" },
-  { id: "4", firstName: "Ana", lastName: "Martínez" },
-  { id: "5", firstName: "Pedro", lastName: "Sánchez" },
-]
+import { useEffect, useState } from "react"
+import type { ScheduleEntry, Subject } from "../../types/schedule"
+import { supabase } from "../../lib/supabase"
+import type { Teacher } from "../../types/types"
 
 interface SubjectAssignmentModalProps {
   entry: ScheduleEntry
@@ -30,6 +12,23 @@ interface SubjectAssignmentModalProps {
 export function SubjectAssignmentModal({ entry, onSave, onClose }: SubjectAssignmentModalProps) {
   const [selectedSubject, setSelectedSubject] = useState<string>(entry.subjectId || "")
   const [selectedTeacher, setSelectedTeacher] = useState<string>(entry.teacherId || "")
+  const [subjects, setSubjects] = useState<Subject[]>([])
+  const [teachers, setTeachers] = useState<Teacher[]>([])
+
+  useEffect(() => {
+    const handleLoadSubjects = async () => {
+      const { data } = await supabase.from("subjects").select("*")
+      setSubjects(data || [])
+    }
+
+    const handleLoadTeachers = async () => {
+      const { data } = await supabase.from("teacher").select("*")
+      setTeachers(data || [])
+    }
+
+    handleLoadSubjects()
+    handleLoadTeachers()
+  }, [])
 
   const handleSave = () => {
     if (!selectedSubject || !selectedTeacher) {
@@ -37,8 +36,13 @@ export function SubjectAssignmentModal({ entry, onSave, onClose }: SubjectAssign
       return
     }
 
-    const subject = SUBJECTS.find((s) => s.id === selectedSubject)!
-    const teacher = TEACHERS.find((t) => t.id === selectedTeacher)!
+    const subject = subjects.find((s) => s.id === selectedSubject)
+    const teacher = teachers.find((t) => t.teacherId === selectedTeacher)
+
+    if (!subject || !teacher) {
+      alert("Error: materia o profesor no encontrado")
+      return
+    }
 
     onSave(subject, teacher)
   }
@@ -56,7 +60,7 @@ export function SubjectAssignmentModal({ entry, onSave, onClose }: SubjectAssign
             className="w-full px-3 py-2 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 bg-background text-foreground"
           >
             <option value="">-- Selecciona una materia --</option>
-            {SUBJECTS.map((subject) => (
+            {subjects.map((subject) => (
               <option key={subject.id} value={subject.id}>
                 {subject.name}
               </option>
@@ -72,9 +76,9 @@ export function SubjectAssignmentModal({ entry, onSave, onClose }: SubjectAssign
             className="w-full px-3 py-2 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 bg-background text-foreground"
           >
             <option value="">-- Selecciona un profesor --</option>
-            {TEACHERS.map((teacher) => (
-              <option key={teacher.id} value={teacher.id}>
-                {teacher.firstName} {teacher.lastName}
+            {teachers.map((teacher) => (
+              <option key={teacher.teacherId} value={teacher.teacherId}>
+                {teacher.name} {teacher.lastname}
               </option>
             ))}
           </select>

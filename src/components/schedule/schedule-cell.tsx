@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import { SubjectAssignmentModal } from "./subject-assignment-modal"
 import type { ScheduleEntry } from "../../types/schedule"
@@ -16,9 +14,11 @@ export function ScheduleCell({ entry, onUpdate }: ScheduleCellProps) {
     <>
       <button
         onClick={() => setShowModal(true)}
-        className={`w-full p-2 rounded-lg text-sm font-medium transition-all min-h-16 flex flex-col justify-center items-center text-center ${
-          entry.subjectName ? "bg-sky-500 text-white hover:bg-sky-600" : "bg-gray-200 text-gray-600 hover:bg-gray-300"
-        }`}
+        className={`w-full p-2 rounded-lg text-sm font-medium transition-all min-h-16 flex flex-col justify-center items-center text-center ${entry.subjectName === "Sin asignar"
+            ? "bg-gray-200 text-gray-600 hover:bg-gray-300"
+            : "bg-sky-500 text-white hover:bg-sky-600"
+          }`}
+
       >
         {entry.subjectName ? (
           <>
@@ -37,8 +37,8 @@ export function ScheduleCell({ entry, onUpdate }: ScheduleCellProps) {
             onUpdate({
               subjectId: subject.id,
               subjectName: subject.name,
-              teacherId: teacher.id,
-              teacherName: teacher.firstName + " " + teacher.lastName,
+              teacherId: teacher.teacherId,
+              teacherName: teacher.name + " " + teacher.lastname,
             })
             setShowModal(false)
           }}
