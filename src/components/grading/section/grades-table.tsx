@@ -18,7 +18,7 @@ interface GradesTableProps {
   maxScore: number
   levelId: string
   gradeId: string
-  classroom: Section
+  classroom: Section|null
   subjectId: string
   subjectName: string
   students: Student[]
@@ -77,7 +77,7 @@ export default function GradesTable({
     try {
       const payload = grades.map(sg => ({
         student_id: sg.studentId,
-        section_id: classroom.id,
+        section_id: classroom?.id,
         subject_id: subjectId,
         evaluations: sg.grades.map(g => ({
           distributionId: g.distributionId,
@@ -90,7 +90,9 @@ export default function GradesTable({
 
       const { data, error } = await supabase
         .from("grading")
-        .upsert(payload, { onConflict: ["student_id", "section_id", "subject_id"] })
+       .upsert(payload, { onConflict: "student_id,section_id,subject_id" })
+
+ 
 
 
       if (error) throw error
@@ -108,7 +110,7 @@ export default function GradesTable({
     <div>
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-semibold text-gray-900">
-          Registro de Calificaciones - Aula {classroom.name} ({subjectName})
+          Registro de Calificaciones - Aula {classroom?.name} ({subjectName})
         </h2>
         <button
           onClick={onBack}
