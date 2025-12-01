@@ -19,6 +19,7 @@ import GradingPage from "./views/grading"
 import NewsPage from "./views/news"
 import { supabase } from "./lib/supabase"
 import SeccionesPage from "./views/secciones"
+import GradingBySectionPage from "./views/grading"
 
 function App() {
   const [loading, setLoading] = useState(true)
@@ -73,7 +74,7 @@ function App() {
         <Route path="enrollment" element={<EnrollmentsPage />} />
         <Route path="payments" element={<PaymentsPage />} />
         <Route path="schedule" element={<SchedulePage />} />
-        <Route path="grading" element={<GradingPage />} />
+        <Route path="grading" element={<GradingBySectionPage />} />
         <Route path="news" element={<NewsPage />} />
         <Route path="section" element={<SeccionesPage />} />
       </Route>

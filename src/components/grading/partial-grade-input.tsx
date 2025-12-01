@@ -1,3 +1,5 @@
+"use client"
+
 import type { GradeDistribution, PartialGrade } from "../../types/grading"
 
 interface PartialGradeInputProps {
@@ -27,7 +29,7 @@ export function PartialGradeInput({ distributions, maxScore, partialGrades, onCh
       updated = [...partialGrades, { distributionId, points: limitedValue }]
     }
 
-    onChange(updated);
+    onChange(updated)
   }
 
   return (
