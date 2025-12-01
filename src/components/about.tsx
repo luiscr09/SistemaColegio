@@ -7,7 +7,7 @@ export default function About() {
           <div className="relative order-2 lg:order-1">
             <div className="aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl">
               <img
-                src="public/images/nosotros.jpg"
+                src="/images/nosotros.jpg"
                 alt="Comunidad educativa Liceo Fidel Coloma"
                 className="w-full h-full object-cover"
               />

@@ -10,7 +10,7 @@ const MOCK_NEWS: News[] = [
     id: "1",
     title: "Jornada de Inscripción 2025",
     description: "Se abre el período de inscripción para estudiantes nuevos y antiguos del ciclo escolar 2025.",
-    image: "public/images/Matricula_abierta.jpg",
+    image: "/images/Matricula_abierta.jpg",
     createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
     updatedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
     published: true,
