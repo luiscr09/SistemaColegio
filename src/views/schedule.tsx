@@ -53,7 +53,7 @@ export default function SchedulePage() {
         if (!sectionData) return
 
         const gradeId = sectionData.grade_id
-        const level = sectionData.grades.level
+       const level = sectionData.grades?.[0]?.level
         const classroomId = sectionData.id
 
         setSelectedLevel(level)
