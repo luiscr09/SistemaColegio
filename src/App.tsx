@@ -18,6 +18,7 @@ import SchedulePage from "./views/schedule"
 import GradingPage from "./views/grading"
 import NewsPage from "./views/news"
 import { supabase } from "./lib/supabase"
+import SeccionesPage from "./views/secciones"
 
 function App() {
   const [loading, setLoading] = useState(true)
@@ -74,6 +75,7 @@ function App() {
         <Route path="schedule" element={<SchedulePage />} />
         <Route path="grading" element={<GradingPage />} />
         <Route path="news" element={<NewsPage />} />
+        <Route path="section" element={<SeccionesPage />} />
       </Route>
     </Routes>
   )

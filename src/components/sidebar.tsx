@@ -23,6 +23,7 @@ import {
   ChevronRight,
   Menu,
   X,
+  ListCheck,
 } from "lucide-react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { supabase } from "../lib/supabase"
@@ -50,6 +51,7 @@ const menuData: MenuSection[] = [
     section: "Estudiantes",
     items: [
       { title: "Gestionar Estudiantes", icon: UserPlus, href: "/dashboard/students" },
+      { title: "Listar Estudiante", icon: UserCheck, href: "/dashboard/students" },
     ],
   },
   {
@@ -64,6 +66,7 @@ const menuData: MenuSection[] = [
     items: [
       { title: "Gestionar Cursos", icon: BookOpen, href: "/dashboard/courses" },
       { title: "Gestionar Asignaturas", icon: ClipboardList, href: "#" },
+      { title: "Listar Secciones", icon: ListCheck, href: "/dashboard/section" },
     ],
   },
   {
