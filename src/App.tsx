@@ -46,22 +46,18 @@ function App() {
 
   if (loading) return <p>Cargando...</p>
 
-  // --- Reglas de seguridad ---
   const isLogged = !!session
 
-  // Si NO está logueado → bloquear todo lo que empiece con /dashboard
   if (!isLogged && location.pathname.startsWith("/dashboard")) {
     return <Navigate to="/login" replace />
   }
 
-  // Si SI está logueado → bloquear /login
   if (isLogged && location.pathname === "/login") {
     return <Navigate to="/dashboard" replace />
   }
 
   return (
     <Routes>
-      {/* Rutas públicas */}
       <Route path="/login" element={<Login />} />
       <Route path="/" element={<HomePage />} />
 
@@ -73,6 +69,8 @@ function App() {
         <Route path="teachers" element={<TeachersPage />} />
         <Route path="enrollment" element={<EnrollmentsPage />} />
         <Route path="payments" element={<PaymentsPage />} />
+        <Route path="schedule/:section_id?" element={<SchedulePage />} />
+        <Route path="grading" element={<GradingPage />} />
         <Route path="schedule" element={<SchedulePage />} />
         <Route path="grading" element={<GradingBySectionPage />} />
         <Route path="news" element={<NewsPage />} />
