@@ -16,6 +16,12 @@ export interface StudentPaymentProps extends Student {
   custom_monthly_fee?: number
 }
 
+export interface Asignature {
+  id: string
+  name: string
+  code: string
+}
+
 export interface Student {
   id: string
   first_name: string

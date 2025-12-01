@@ -1,6 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import type { Asignature } from "../../../types/types";
+import { supabase } from "../../../lib/supabase";
 
 interface SubjectSelectorProps {
   onSelect: (subject: { id: string; name: string; code: string }) => void
@@ -8,16 +10,16 @@ interface SubjectSelectorProps {
 }
 
 export default function SubjectSelector({ onSelect, onBack }: SubjectSelectorProps) {
-  const [subjects, setSubjects] = useState([
-    { id: "mat", name: "Matemáticas", code: "MAT" },
-    { id: "esp", name: "Español", code: "ESP" },
-    { id: "ing", name: "Inglés", code: "ING" },
-    { id: "cie", name: "Ciencias", code: "CIE" },
-    { id: "soc", name: "Estudios Sociales", code: "SOC" },
-    { id: "art", name: "Artes", code: "ART" },
-    { id: "edfi", name: "Educación Física", code: "EDFI" },
-  ])
+  const [asignature, setAsignature] = useState<Asignature[]>([])
 
+  useEffect(() => {
+    const handleLoadAsignature = async () => {
+      const { data } = await supabase.from('subjects').select('*')
+      setAsignature(data || [])
+    }
+
+    handleLoadAsignature();
+  }, [])
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
@@ -31,7 +33,7 @@ export default function SubjectSelector({ onSelect, onBack }: SubjectSelectorPro
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {subjects.map((subject) => (
+        {asignature.map((subject) => (
           <button
             key={subject.id}
             onClick={() => onSelect(subject)}

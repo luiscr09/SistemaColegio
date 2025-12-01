@@ -1,8 +1,10 @@
 "use client"
 
+import type { Section } from "../../../types/types"
+
 interface ClassroomSelectorProps {
-  classrooms: string[]
-  onSelect: (classroom: string) => void
+  classrooms: Section[]
+  onSelect: (classroom: Section) => void
   onBack: () => void
   gradeName: string
 }
@@ -20,13 +22,13 @@ export default function ClassroomSelector({ classrooms, onSelect, onBack, gradeN
         </button>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        {classrooms.map((classroom) => (
+        {classrooms.map((section) => (
           <button
-            key={classroom}
-            onClick={() => onSelect(classroom)}
+            key={section.id}
+            onClick={() => onSelect(section)}
             className="p-6 bg-gradient-to-br from-sky-50 to-sky-100 border-2 border-sky-200 rounded-lg hover:border-sky-500 hover:shadow-lg transition-all cursor-pointer"
           >
-            <p className="font-semibold text-lg text-sky-900">Aula {classroom}</p>
+            <p className="font-semibold text-lg text-sky-900">Aula {section.name}</p>
           </button>
         ))}
       </div>
