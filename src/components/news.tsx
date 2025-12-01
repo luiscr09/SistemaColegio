@@ -6,7 +6,7 @@ export function News() {
       date: "20 de Enero, 2025",
       summary:
         "Damos la bienvenida a todos nuestros estudiantes y familias al nuevo ciclo escolar. Las clases inician el 20 de enero.",
-      image: "public/images/images.jpg",
+      image: "/images/images.jpg",
     },
     {
       id: 2,
@@ -14,14 +14,14 @@ export function News() {
       date: "10 de febrero, 2025",
       summary:
         "Invitamos a todos los padres a la reunión informativa sobre el calendario académico y actividades del año.",
-      image: "public/images/padresfam.jpg",
+      image: "/images/padresfam.jpg",
     },
     {
       id: 3,
       title: "Acto cívico por el Día de la Bandera",
       date: "14 de Julio, 2025",
       summary: "Celebramos con orgullo nuestros símbolos patrios con un emotivo acto cívico en el patio central.",
-      image: "public/images/actociv.jpg",
+      image: "/images/actociv.jpg",
     },
   ]
 
